@@ -7,7 +7,7 @@ public class Character {
         this.character = character;
     }
 
-    public char getCharacter() {
+    public char getChar() {
         return character;
     }
 

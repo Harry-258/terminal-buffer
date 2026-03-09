@@ -7,6 +7,8 @@ public class TerminalBuffer {
 
     public TerminalBuffer(int width, int height, int scrollbackSize) {
         this.ringBuffer = new RingBuffer(height, width, scrollbackSize);
+        this.cursorX = 0;
+        this.cursorY = 0;
     }
 
     /**
