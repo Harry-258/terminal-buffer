@@ -3,63 +3,91 @@ package io.github.harry_258.terminalbuffer;
 import java.util.ArrayList;
 
 public class RingBuffer {
-    private final ArrayList<Row> buffer;
+    private ArrayList<Row> buffer;
     private int rowCount;
     private int rowSize;
-    private int scrollbackSize;
+    private int scrollbackRowCount;
     private int index;
     private boolean isFull;
 
     /**
      * Initializes a new RingBuffer with the given size as the number of rows.
-     * @param size The number of rows in the buffer.
+     * @param screenRowCount The number of rows in the screen buffer.
+     * @param rowSize The number of characters in each row.
+     * @param scrollbackRowCount The number of rows to keep in the scrollback buffer.
      */
-    public RingBuffer(int rowCount, int rowSize, int scrollbackSize) {
-        this.rowCount = rowCount;
+    public RingBuffer(int screenRowCount, int rowSize, int scrollbackRowCount) {
+        this.rowCount = screenRowCount + scrollbackRowCount;
         this.rowSize = rowSize;
-        this.scrollbackSize = scrollbackSize;
-        this.buffer = new ArrayList<>();
+        this.scrollbackRowCount = scrollbackRowCount;
+        this.buffer = new ArrayList<>(screenRowCount);
         this.index = 0;
         this.isFull = false;
 
-        for (int i = 0; i < rowCount; i++) {
+        for (int i = 0; i < this.rowCount; i++) {
             this.buffer.add(new Row(rowSize));
         }
     }
 
     /**
-     * Inserts a new empty row in the ring buffer. If the buffer is full, it overwrites the oldest row.
+     * Gets the size of each row.
+     * @return The size of each row.
      */
-    public void insertRow() {
-        buffer.get(index).clear();
-        index = (index + 1) % rowCount;
+    public int getRowSize() {
+        return rowSize;
+    }
+
+    /**
+     * Gets the number of rows in the buffer.
+     * @return The number of rows in the buffer.
+     */
+    public int getRowCount() {
+        return rowCount;
+    }
+
+    /**
+     * Gets the number of rows in the scrollback buffer.
+     * @return The number of rows in the scrollback buffer.
+     */
+    public int getScrollbackRowCount() {
+        return scrollbackRowCount;
     }
 
     /**
      * Gets the row at the specified index.
+     *
      * @param index The index of the row to retrieve.
      * @return The row at the specified index.
      */
     public Row getRow(int index) {
-        return buffer.get((this.index + index) % rowCount);
+        int startIndex = isFull ? this.index : 0;
+        return buffer.get((startIndex + index) % rowCount);
     }
 
     /**
      * Changes the size of the buffer. If the new size is larger, it adds empty rows. Otherwise, it removes the extra rows.
-     * @param newSize The new size of the buffer.
+     * @param newCount The new size of the buffer.
      */
-    public void changeSize(int newSize) {
-        if (newSize == rowCount) {
-            return;
+    public void changeRowCount(int newCount) {
+        if (newCount == this.rowCount) return;
+
+        ArrayList<Row> newBuffer = new ArrayList<>(newCount);
+
+        int validRows = isFull ? this.rowCount : this.index;
+        int rowsToKeep = Math.min(validRows, newCount);
+        int rowsToSkip = validRows - rowsToKeep;
+
+        for (int i = 0; i < rowsToKeep; i++) {
+            newBuffer.add(getRow(i + rowsToSkip));
         }
 
-        // TODO
-    }
+        for (int i = rowsToKeep; i < newCount; i++) {
+            newBuffer.add(new Row(rowSize));
+        }
 
-    // TODO
-//    public void changeRowSize(int rowCount) {
-//        for (int i = 0; i < size; i++) {
-//            buffer.get(i).
-//        }
-//    }
+        this.buffer = newBuffer;
+        this.rowCount = newCount;
+        this.index = rowsToKeep % newCount;
+        this.isFull = (rowsToKeep == newCount);
+    }
 }
