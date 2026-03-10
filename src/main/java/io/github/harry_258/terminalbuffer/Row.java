@@ -55,10 +55,13 @@ public class Row {
         row.add(size - 1, new Cell(' '));
     }
 
-    // TODO
-//    public ArrayList<Character> changeSize(int size) {
-//        this.size = size;
-//    }
+    // TODO: Add each cell with default formatting
+    public void changeSize(int size) {
+        while (this.size < size) {
+            row.add(new Cell(' '));
+        }
+        this.size = size;
+    }
 
     /**
      * Replaces all the characters in the row with the specified character.
@@ -67,6 +70,15 @@ public class Row {
     public void fillWithCharacter(char character) {
         for (Cell c : row) {
             c.setCharacter(character);
+        }
+    }
+
+    /**
+     * Clears the formatting of all the cells in the row.
+     */
+    public void clearFormatting() {
+        for (Cell c : row) {
+            c.clearFormatting();
         }
     }
 }

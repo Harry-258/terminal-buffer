@@ -260,4 +260,20 @@ public class Cell {
 
         return stringBuilder.toString();
     }
+
+    /**
+     * Clears all formatting from the cell.
+     */
+    public void clearFormatting() {
+        isBold = false;
+        isDim = false;
+        isItalic = false;
+        isUnderlined = false;
+        isBlink = false;
+        isRapidBlink = false;
+        isReverse = false;
+        isHidden = false;
+        this.foregroundColor = 39;
+        this.backgroundColor = 49;
+    }
 }
