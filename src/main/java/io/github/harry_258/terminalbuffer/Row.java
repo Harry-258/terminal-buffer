@@ -55,6 +55,7 @@ public class Row {
         row.add(size - 1, new Character(' '));
     }
 
+    // TODO
 //    public ArrayList<Character> changeSize(int size) {
 //        this.size = size;
 //    }
