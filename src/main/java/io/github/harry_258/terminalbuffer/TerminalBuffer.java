@@ -12,6 +12,34 @@ public class TerminalBuffer {
     }
 
     /**
+     * Writes the provided character at the current cursor position and advances the cursor. If the cursor
+     * is at the end of the line, it wraps to the next line and overwrites the first character of the line.
+     * @param character The character to write.
+     */
+    public void write(char character) {
+        if (cursorX >= ringBuffer.getRowSize()) {
+            cursorX = 0;
+            cursorY++;
+        }
+
+        int screenHeight = ringBuffer.getRowCount() - ringBuffer.getScrollbackRowCount();
+        if (cursorY >= screenHeight) {
+            insertLineAtBottom();
+            cursorY = screenHeight - 1;
+        }
+
+        ringBuffer.write(character, cursorY + ringBuffer.getScrollbackRowCount(), cursorX);
+        cursorX++;
+    }
+
+    /**
+     * Inserts an empty line at the bottom of the screen.
+     */
+    public void insertLineAtBottom() {
+        ringBuffer.insertLineAtBottom();
+    }
+
+    /**
      * Moves the cursor up by the specified number of rows.
      * @param rows The number of rows to move up.
      */
@@ -40,7 +68,7 @@ public class TerminalBuffer {
      * @param columns The number of columns to move right.
      */
     public void moveCursorRight(int columns) {
-        this.cursorX = Math.min(ringBuffer.getRowSize() - 1, this.cursorX + columns);
+        this.cursorX = Math.min(ringBuffer.getRowSize(), this.cursorX + columns);
     }
 
     /**

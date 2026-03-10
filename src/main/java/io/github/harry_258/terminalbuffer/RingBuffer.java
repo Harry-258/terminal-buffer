@@ -1,14 +1,14 @@
 package io.github.harry_258.terminalbuffer;
 
 import java.util.ArrayList;
+import java.util.List;
 
 public class RingBuffer {
-    private ArrayList<Row> buffer;
+    private List<Row> buffer;
     private int rowCount;
     private int rowSize;
     private int scrollbackRowCount;
     private int index;
-    private boolean isFull;
 
     /**
      * Initializes a new RingBuffer with the given size as the number of rows.
@@ -22,11 +22,32 @@ public class RingBuffer {
         this.scrollbackRowCount = scrollbackRowCount;
         this.buffer = new ArrayList<>(screenRowCount);
         this.index = 0;
-        this.isFull = false;
 
         for (int i = 0; i < this.rowCount; i++) {
             this.buffer.add(new Row(rowSize));
         }
+    }
+
+    /**
+     * Writes a character to the specified row and column.
+     * @param character The character to write.
+     * @param row The row to write the character to.
+     * @param column The column to write the character to.
+     */
+    public void write(char character, int row, int column) {
+        getRow(row).writeCharacter(character, column);
+    }
+
+    /**
+     * Inserts an empty line by clearing the oldest line in the scrollback buffer and moving the index forward.
+     */
+    public void insertLineAtBottom() {
+        Row oldestRow = getRow(0);
+
+        oldestRow.clear();
+        oldestRow.clearFormatting();
+
+        index = (index + 1) % rowCount;
     }
 
     /**
@@ -60,39 +81,37 @@ public class RingBuffer {
      * @return The row at the specified index.
      */
     public Row getRow(int index) {
-        int startIndex = isFull ? this.index : 0;
-        return buffer.get((startIndex + index) % rowCount);
+        return buffer.get((this.index + index) % rowCount);
     }
 
     /**
-     * Changes the size of the buffer. If the new size is larger, it adds empty rows. Otherwise, it removes the extra rows.
-     * @param newCount The new size of the buffer.
+     * Changes the height of the screen. If the new size is larger, it adds empty rows
+     * at the top of the scrollback buffer. Otherwise, it removes the extra rows from the scrollback buffer.
+     * @param newRowCount The new height of the screen.
      */
-    public void changeRowCount(int newCount) {
-        if (newCount == this.rowCount) return;
+    public void changeScreenHeight(int newRowCount) {
+        List<Row> newBuffer = new ArrayList<>();
+        int padding = newRowCount - rowCount;
+        int skippedRows = rowCount - newRowCount;
 
-        ArrayList<Row> newBuffer = new ArrayList<>(newCount);
-
-        int validRows = isFull ? this.rowCount : this.index;
-        int rowsToKeep = Math.min(validRows, newCount);
-        int rowsToSkip = validRows - rowsToKeep;
-
-        for (int i = 0; i < rowsToKeep; i++) {
-            newBuffer.add(getRow(i + rowsToSkip));
-        }
-
-        for (int i = rowsToKeep; i < newCount; i++) {
+        while (padding > 0) {
             newBuffer.add(new Row(rowSize));
+            padding--;
         }
 
-        this.buffer = newBuffer;
-        this.rowCount = newCount;
-        this.index = rowsToKeep % newCount;
-        this.isFull = (rowsToKeep == newCount);
+        int logicalIndex = Math.max(0, skippedRows);
+        while (logicalIndex < rowCount) {
+            newBuffer.add(getRow(logicalIndex));
+            logicalIndex++;
+        }
+
+        index = 0;
+        rowCount = newRowCount;
+        buffer = newBuffer;
     }
 
     /**
-     * Clears all formatting from each row in the buffer.
+     * Clears all formatting from each row on the screen and scrollback.
      */
     public void clearFormatting() {
         for (Row row : buffer) {
@@ -101,7 +120,7 @@ public class RingBuffer {
     }
 
     /**
-     * Sets all characters in the buffer to spaces.
+     * Sets all characters on the screen and in the scrollback to spaces.
      */
     public void clear() {
         for (Row row : buffer) {

@@ -1,9 +1,10 @@
 package io.github.harry_258.terminalbuffer;
 
 import java.util.ArrayList;
+import java.util.List;
 
 public class Row {
-    private final ArrayList<Cell> row;
+    private final List<Cell> row;
     private int size;
 
     /**
