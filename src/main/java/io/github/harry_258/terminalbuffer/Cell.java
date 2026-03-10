@@ -42,8 +42,8 @@ public class Cell {
         if (attributes.isReverse()) stringBuilder.append("7;");
         if (attributes.isHidden()) stringBuilder.append("8;");
 
-        stringBuilder.append(attributes.foregroundCode()).append(";")
-                .append(attributes.backgroundCode()).append("m")
+        stringBuilder.append(attributes.foreground().getForegroundCode()).append(";")
+                .append(attributes.background().getBackgroundCode()).append("m")
                 .append(character)
                 .append("\033[0m");
 
@@ -64,5 +64,13 @@ public class Cell {
     public Cell setAttributes(TextAttributes attributes) {
         this.attributes = attributes;
         return this;
+    }
+
+    /**
+     * Gets the attributes of the cell.
+     * @return The attribute values of the cell.
+     */
+    public TextAttributes getAttributes() {
+        return attributes;
     }
 }

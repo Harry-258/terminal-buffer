@@ -4,8 +4,8 @@ package io.github.harry_258.terminalbuffer;
  * An immutable record representing the visual style of a cell.
  */
 public record TextAttributes(
-        int foregroundCode,
-        int backgroundCode,
+        Color foreground,
+        Color background,
         boolean isBold,
         boolean isDim,
         boolean isItalic,
@@ -16,12 +16,13 @@ public record TextAttributes(
         boolean isHidden
 ) {
     public enum Color {
-        BLACK, RED, GREEN, YELLOW, BLUE, MAGENTA, CYAN, WHITE;
+        BLACK, RED, GREEN, YELLOW, BLUE, MAGENTA, CYAN, WHITE, DEFAULT;
 
         /**
          * Gets the ANSI escape code for using the color as foreground.
          */
         public int getForegroundCode() {
+            if (this == DEFAULT) return 39;
             return 30 + ordinal();
         }
 
@@ -29,6 +30,7 @@ public record TextAttributes(
          * Gets the ANSI escape code for using the color as background.
          */
         public int getBackgroundCode() {
+            if (this == DEFAULT) return 49;
             return 40 + ordinal();
         }
     }
@@ -37,6 +39,6 @@ public record TextAttributes(
      * Static reference to the default styles that every cell will point to initially.
      */
     public static final TextAttributes DEFAULT = new TextAttributes(
-            39, 49, false, false, false, false, false, false, false, false
+            Color.DEFAULT, Color.DEFAULT, false, false, false, false, false, false, false, false
     );
 }
