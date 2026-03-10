@@ -1,6 +1,5 @@
 package io.github.harry_258.terminalbuffer.unit;
 
-import io.github.harry_258.terminalbuffer.Cell;
 import io.github.harry_258.terminalbuffer.Row;
 import net.jqwik.api.*;
 import net.jqwik.api.constraints.IntRange;
@@ -12,7 +11,7 @@ import static org.junit.jupiter.api.Assertions.*;
 public class RowTests {
     // Property-based test to cover special characters.
     @Property
-    void testWriteCharacter(@ForAll("randomCharacterList") List<Cell> cells) {
+    void testWriteCharacter(@ForAll List<Character> cells) {
         int rowSize = cells.size();
         Row row = new Row(rowSize);
         for (int i = 0; i < rowSize; i++) {
@@ -20,13 +19,8 @@ public class RowTests {
         }
 
         for (int i = 0; i < rowSize; i++) {
-            assertEquals(cells.get(i), row.getCell(i));
+            assertEquals(cells.get(i), row.getCell(i).getChar());
         }
-    }
-
-    @Provide
-    Arbitrary<List<Cell>> randomCharacterList() {
-        return Arbitraries.chars().map(Cell::new).list().ofMinSize(1).ofMaxSize(10);
     }
 
     @Property
@@ -36,9 +30,9 @@ public class RowTests {
     ) {
         Row row = new Row(10);
 
-        row.writeCharacter(new Cell('a'), 0);
-        row.writeCharacter(new Cell('b'), indexUpperBound);
-        row.writeCharacter(new Cell('c'), indexLowerBound);
+        row.writeCharacter('a', 0);
+        row.writeCharacter('b', indexUpperBound);
+        row.writeCharacter('c', indexLowerBound);
 
         assertEquals('c', row.getCell(0).getChar());
         assertEquals('b', row.getCell(9).getChar());
@@ -52,8 +46,8 @@ public class RowTests {
     void testRemoveCharacter() {
         Row row = new Row(2);
 
-        row.writeCharacter(new Cell('a'), 0);
-        row.writeCharacter(new Cell('b'), 1);
+        row.writeCharacter('a', 0);
+        row.writeCharacter('b', 1);
 
         // Remove 'a'
         row.removeCharacter(0);
@@ -75,8 +69,8 @@ public class RowTests {
         assertEquals(' ', row.getCell(rowSize + upperBoundOffset).getChar());
         assertEquals(' ', row.getCell(-lowerBoundOffset).getChar());
 
-        row.writeCharacter(new Cell('a'), 0);
-        row.writeCharacter(new Cell('b'), rowSize - 1);
+        row.writeCharacter('a', 0);
+        row.writeCharacter('b', rowSize - 1);
 
         assertEquals('b', row.getCell(rowSize + upperBoundOffset).getChar());
         assertEquals('a', row.getCell(-lowerBoundOffset).getChar());
@@ -86,9 +80,9 @@ public class RowTests {
     void testClear() {
         Row row = new Row(10);
 
-        row.writeCharacter(new Cell('a'), 0);
-        row.writeCharacter(new Cell('b'), 1);
-        row.writeCharacter(new Cell('c'), 2);
+        row.writeCharacter('a', 0);
+        row.writeCharacter('b', 1);
+        row.writeCharacter('c', 2);
 
         row.clear();
 

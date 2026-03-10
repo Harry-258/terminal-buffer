@@ -29,12 +29,12 @@ public class Row {
     }
 
     /**
-     * Writes a character at the specified index. The index is clamped between 0 and the size of the row.
+     * Overwrites the character at the specified index. The index is clamped between 0 and the size of the row.
      * @param character The character to insert.
      * @param index The index at which to insert the character.
      */
-    public void writeCharacter(Cell character, int index) {
-        row.set(Math.clamp(index, 0, row.size() - 1), character);
+    public void writeCharacter(char character, int index) {
+        row.get(Math.clamp(index, 0, row.size() - 1)).setCharacter(character);
     }
 
     /**
@@ -51,14 +51,23 @@ public class Row {
      * @param index The index of the character to remove.
      */
     public void removeCharacter(int index) {
-        row.remove(index);
-        row.add(size - 1, new Cell(' '));
+        Cell removedCell = row.remove(index);
+        removedCell.setCharacter(' ').clearFormatting();
+        row.addLast(removedCell);
     }
 
-    // TODO: Add each cell with default formatting
+    /**
+     * Changes the size of the row. If the new size is larger, it adds empty cells. Otherwise, it removes the extra cells.
+     * @param size The new size of the row.
+     */
     public void changeSize(int size) {
         while (this.size < size) {
             row.add(new Cell(' '));
+            this.size++;
+        }
+        while (this.size > size) {
+            row.removeLast();
+            this.size--;
         }
         this.size = size;
     }

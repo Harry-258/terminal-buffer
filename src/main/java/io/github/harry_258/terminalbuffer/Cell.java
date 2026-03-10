@@ -56,4 +56,13 @@ public class Cell {
     public void clearFormatting() {
         this.attributes = TextAttributes.DEFAULT;
     }
+
+    /**
+     * Sets the attributes of the cell.
+     * @param attributes The attribute values to be set.
+     */
+    public Cell setAttributes(TextAttributes attributes) {
+        this.attributes = attributes;
+        return this;
+    }
 }
