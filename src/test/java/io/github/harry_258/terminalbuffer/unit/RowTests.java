@@ -1,6 +1,5 @@
 package io.github.harry_258.terminalbuffer.unit;
 
-import io.github.harry_258.terminalbuffer.Character;
 import io.github.harry_258.terminalbuffer.Row;
 import net.jqwik.api.*;
 import net.jqwik.api.constraints.IntRange;
@@ -12,21 +11,16 @@ import static org.junit.jupiter.api.Assertions.*;
 public class RowTests {
     // Property-based test to cover special characters.
     @Property
-    void testWriteCharacter(@ForAll("randomCharacterList") List<Character> characters) {
-        int rowSize = characters.size();
+    void testWriteCharacter(@ForAll List<Character> cells) {
+        int rowSize = cells.size();
         Row row = new Row(rowSize);
         for (int i = 0; i < rowSize; i++) {
-            row.writeCharacter(characters.get(i), i);
+            row.writeCharacter(cells.get(i), i);
         }
 
         for (int i = 0; i < rowSize; i++) {
-            assertEquals(characters.get(i), row.getCharacter(i));
+            assertEquals(cells.get(i), row.getCell(i).getChar());
         }
-    }
-
-    @Provide
-    Arbitrary<List<Character>> randomCharacterList() {
-        return Arbitraries.chars().map(Character::new).list().ofMinSize(1).ofMaxSize(10);
     }
 
     @Property
@@ -36,15 +30,15 @@ public class RowTests {
     ) {
         Row row = new Row(10);
 
-        row.writeCharacter(new Character('a'), 0);
-        row.writeCharacter(new Character('b'), indexUpperBound);
-        row.writeCharacter(new Character('c'), indexLowerBound);
+        row.writeCharacter('a', 0);
+        row.writeCharacter('b', indexUpperBound);
+        row.writeCharacter('c', indexLowerBound);
 
-        assertEquals('c', row.getCharacter(0).getChar());
-        assertEquals('b', row.getCharacter(9).getChar());
+        assertEquals('c', row.getCell(0).getChar());
+        assertEquals('b', row.getCell(9).getChar());
 
         for (int i = 1; i < 9; i++) {
-            assertEquals(' ', row.getCharacter(i).getChar());
+            assertEquals(' ', row.getCell(i).getChar());
         }
     }
 
@@ -52,48 +46,48 @@ public class RowTests {
     void testRemoveCharacter() {
         Row row = new Row(2);
 
-        row.writeCharacter(new Character('a'), 0);
-        row.writeCharacter(new Character('b'), 1);
+        row.writeCharacter('a', 0);
+        row.writeCharacter('b', 1);
 
         // Remove 'a'
         row.removeCharacter(0);
         // 'b' should be at index 0, so this call should not remove it.
         row.removeCharacter(1);
 
-        assertEquals('b', row.getCharacter(0).getChar());
-        assertEquals(' ', row.getCharacter(1).getChar());
+        assertEquals('b', row.getCell(0).getChar());
+        assertEquals(' ', row.getCell(1).getChar());
     }
 
     @Property
-    void testGetCharacterOutOfBounds(
+    void testGetCellOutOfBounds(
             @ForAll @IntRange(min = 1, max = 1000) int lowerBoundOffset,
             @ForAll @IntRange(min = 0, max = 1000) int upperBoundOffset,
             @ForAll @IntRange(min = 2, max = 1000) int rowSize
     ) {
         Row row = new Row(rowSize);
 
-        assertEquals(' ', row.getCharacter(rowSize + upperBoundOffset).getChar());
-        assertEquals(' ', row.getCharacter(-lowerBoundOffset).getChar());
+        assertEquals(' ', row.getCell(rowSize + upperBoundOffset).getChar());
+        assertEquals(' ', row.getCell(-lowerBoundOffset).getChar());
 
-        row.writeCharacter(new Character('a'), 0);
-        row.writeCharacter(new Character('b'), rowSize - 1);
+        row.writeCharacter('a', 0);
+        row.writeCharacter('b', rowSize - 1);
 
-        assertEquals('b', row.getCharacter(rowSize + upperBoundOffset).getChar());
-        assertEquals('a', row.getCharacter(-lowerBoundOffset).getChar());
+        assertEquals('b', row.getCell(rowSize + upperBoundOffset).getChar());
+        assertEquals('a', row.getCell(-lowerBoundOffset).getChar());
     }
 
     @Test
     void testClear() {
         Row row = new Row(10);
 
-        row.writeCharacter(new Character('a'), 0);
-        row.writeCharacter(new Character('b'), 1);
-        row.writeCharacter(new Character('c'), 2);
+        row.writeCharacter('a', 0);
+        row.writeCharacter('b', 1);
+        row.writeCharacter('c', 2);
 
         row.clear();
 
         for (int i = 0; i < 10; i++) {
-            assertEquals(' ', row.getCharacter(i).getChar());
+            assertEquals(' ', row.getCell(i).getChar());
         }
     }
 
@@ -103,7 +97,7 @@ public class RowTests {
         row.fillWithCharacter('a');
 
         for (int i = 0; i < 10; i++) {
-            assertEquals('a', row.getCharacter(i).getChar());
+            assertEquals('a', row.getCell(i).getChar());
         }
     }
 }

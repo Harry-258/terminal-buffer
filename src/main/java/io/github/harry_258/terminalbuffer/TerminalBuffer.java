@@ -68,4 +68,26 @@ public class TerminalBuffer {
     public int getCursorY() {
         return cursorY;
     }
+
+    /**
+     * Clears all formatting from the terminal.
+     */
+    public void clearAllFormatting() {
+        ringBuffer.clearFormatting();
+    }
+
+    /**
+     * Clears the terminal of all characters.
+     */
+    public void clearTerminal() {
+        ringBuffer.clear();
+    }
+
+    /**
+     * Clears all the characters in the terminal and resets the formatting to default.
+     */
+    public void clearTerminalAndFormatting() {
+        clearAllFormatting();
+        clearTerminal();
+    }
 }

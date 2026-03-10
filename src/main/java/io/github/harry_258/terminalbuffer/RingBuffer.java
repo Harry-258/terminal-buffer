@@ -90,4 +90,22 @@ public class RingBuffer {
         this.index = rowsToKeep % newCount;
         this.isFull = (rowsToKeep == newCount);
     }
+
+    /**
+     * Clears all formatting from each row in the buffer.
+     */
+    public void clearFormatting() {
+        for (Row row : buffer) {
+            row.clearFormatting();
+        }
+    }
+
+    /**
+     * Sets all characters in the buffer to spaces.
+     */
+    public void clear() {
+        for (Row row : buffer) {
+            row.clear();
+        }
+    }
 }
