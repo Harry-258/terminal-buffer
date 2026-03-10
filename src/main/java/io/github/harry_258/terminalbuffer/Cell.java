@@ -1,6 +1,6 @@
 package io.github.harry_258.terminalbuffer;
 
-public class Character {
+public class Cell {
     private char character;
     private int foregroundColor;
     private int backgroundColor;
@@ -33,7 +33,7 @@ public class Character {
         }
     }
 
-    public Character(char character) {
+    public Cell(char character) {
         this.character = character;
         // Default colors
         this.foregroundColor = 39;
@@ -52,7 +52,7 @@ public class Character {
      * Sets the character inside the cell.
      * @param character The char value to be set.
      */
-    public Character setCharacter(char character) {
+    public Cell setCharacter(char character) {
         this.character = character;
         return this;
     }
@@ -62,7 +62,7 @@ public class Character {
      * @param color The color to set.
      * @param isBright Whether the cell foreground should have the bright version of the color.
      */
-    public Character setForegroundColor(Color color, boolean isBright) {
+    public Cell setForegroundColor(Color color, boolean isBright) {
         foregroundColor = color.getForegroundCode() + (isBright ? 60 : 0);
         return this;
     }
@@ -72,7 +72,7 @@ public class Character {
      * @param color The color to set.
      * @param isBright Whether the cell background should have the bright version of the color.
      */
-    public Character setBackgroundColor(Color color, boolean isBright) {
+    public Cell setBackgroundColor(Color color, boolean isBright) {
         backgroundColor = color.getBackgroundCode() + (isBright ? 60 : 0);
         return this;
     }
@@ -82,7 +82,7 @@ public class Character {
      * @param isBold Whether the cell should be bold.
      * @return The cell object.
      */
-    public Character setBold(boolean isBold) {
+    public Cell setBold(boolean isBold) {
         this.isBold = isBold;
         return this;
     }
@@ -92,7 +92,7 @@ public class Character {
      * @param isDim Whether the cell should be dim.
      * @return The cell object.
      */
-    public Character setDim(boolean isDim) {
+    public Cell setDim(boolean isDim) {
         this.isDim = isDim;
         return this;
     }
@@ -102,7 +102,7 @@ public class Character {
      * @param isItalic Whether the cell should be italic.
      * @return The cell object.
      */
-    public Character setItalic(boolean isItalic) {
+    public Cell setItalic(boolean isItalic) {
         this.isItalic = isItalic;
         return this;
     }
@@ -112,7 +112,7 @@ public class Character {
      * @param isUnderline Whether the cell should be underlined.
      * @return The cell object.
      */
-    public Character setUnderlined(boolean isUnderline) {
+    public Cell setUnderlined(boolean isUnderline) {
         this.isUnderlined = isUnderline;
         return this;
     }
@@ -122,7 +122,7 @@ public class Character {
      * @param isBlink Whether the cell should blink.
      * @return The cell object.
      */
-    public Character setBlink(boolean isBlink) {
+    public Cell setBlink(boolean isBlink) {
         this.isBlink = isBlink;
         return this;
     }
@@ -132,7 +132,7 @@ public class Character {
      * @param isRapidBlink Whether the cell should rapidly blink.
      * @return The cell object.
      */
-    public Character setRapidBlink(boolean isRapidBlink) {
+    public Cell setRapidBlink(boolean isRapidBlink) {
         this.isRapidBlink = isRapidBlink;
         return this;
     }
@@ -142,7 +142,7 @@ public class Character {
      * @param isReverse Whether the cell should use reverse video.
      * @return The cell object.
      */
-    public Character setReverse(boolean isReverse) {
+    public Cell setReverse(boolean isReverse) {
         this.isReverse = isReverse;
         return this;
     }
@@ -152,7 +152,7 @@ public class Character {
      * @param isHidden Whether the cell should be hidden.
      * @return The cell object.
      */
-    public Character setHidden(boolean isHidden) {
+    public Cell setHidden(boolean isHidden) {
         this.isHidden = isHidden;
         return this;
     }
