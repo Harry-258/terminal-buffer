@@ -5,7 +5,6 @@ import io.github.harry_258.terminalbuffer.TerminalBuffer;
 import io.github.harry_258.terminalbuffer.TextAttributes;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mock;
 import org.mockito.Mockito;
 
 import java.lang.reflect.Field;
@@ -46,6 +45,7 @@ public class TerminalBufferTests {
         Mockito.when(mockRingBuffer.getCharacter(Mockito.anyInt(), Mockito.anyInt())).thenReturn('a');
         Mockito.when(mockRingBuffer.getCellAttributes(Mockito.anyInt(), Mockito.anyInt())).thenReturn(TextAttributes.DEFAULT);
         Mockito.when(mockRingBuffer.getLineAsString(Mockito.anyInt())).thenReturn("JetBrains");
+        Mockito.doNothing().when(mockRingBuffer).insertLine(Mockito.anyInt());
 
         Field ringBufferField = TerminalBuffer.class.getDeclaredField("ringBuffer");
         ringBufferField.setAccessible(true);
@@ -328,5 +328,27 @@ public class TerminalBufferTests {
         Mockito.when(mockRingBuffer.getTerminalContent()).thenReturn("JetBrains");
         buffer.getTerminalContentAsString();
         Mockito.verify(mockRingBuffer, Mockito.times(1)).getTerminalContent();
+    }
+
+    @Test
+    void testInsertTextOnLine() {
+        int stringLength = 100;
+        int insertedRow = 13;
+        String insertedText = "a".repeat(stringLength);
+
+        buffer.insertTextOnLine(insertedRow, insertedText);
+
+        Mockito.verify(mockRingBuffer, Mockito.times(Math.ceilDiv(stringLength, width))).insertLine(insertedRow + 1);
+        assertEquals(insertedRow + 1, buffer.getCursorY());
+        assertEquals(stringLength % width, buffer.getCursorX());
+        Mockito.verify(mockRingBuffer, Mockito.times(stringLength)).write(Mockito.eq('a'), Mockito.anyInt(), Mockito.anyInt());
+    }
+
+    @Test
+    void testInsertEmptyTextOnLine() {
+        buffer.insertTextOnLine(10, "");
+
+        Mockito.verify(mockRingBuffer, Mockito.never()).insertLine(Mockito.anyInt());
+        Mockito.verify(mockRingBuffer, Mockito.never()).write(Mockito.anyChar(), Mockito.anyInt(), Mockito.anyInt());
     }
 }

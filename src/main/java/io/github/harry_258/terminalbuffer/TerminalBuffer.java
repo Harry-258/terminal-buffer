@@ -94,6 +94,29 @@ public class TerminalBuffer {
     }
 
     /**
+     * Inserts the given text at the specified row on the screen. Wraps to the next
+     * line if it overflows. Does not overwrite any existing characters.
+     * @param row The row to insert the text at.
+     * @param text The text to insert.
+     */
+    public void insertTextOnLine(int row, String text) {
+        if (text.isEmpty()) return;
+
+        // Insert enough empty lines for the entire text to fit
+        int insertedLines = Math.ceilDiv(text.length(), ringBuffer.getRowSize());
+        int bottomRow = row + insertedLines - 1;
+
+        for (int i = 0; i < insertedLines; i++) {
+            ringBuffer.insertLine(bottomRow);
+        }
+
+        moveCursorTo(row, 0);
+        for (int i = 0; i < text.length(); i++) {
+            write(text.charAt(i));
+        }
+    }
+
+    /**
      * Moves the cursor up by the specified number of rows.
      * @param rows The number of rows to move up.
      */

@@ -373,4 +373,22 @@ public class RingBufferTests {
 
         assertEquals(expected, buffer.getTerminalContent());
     }
+
+    @Test
+    void testInsertLine() {
+        buffer.write('a', 0);
+        buffer.insertLineAtBottom();
+        buffer.write('b', 0);
+        buffer.insertLineAtBottom();
+        buffer.write('c', 0);
+        buffer.insertLineAtBottom();
+        buffer.write('d', 0);
+
+        buffer.insertLine(1);
+
+        assertEquals('b', buffer.getRow(0).getCell(0).getChar());
+        assertEquals('c', buffer.getRow(1).getCell(0).getChar());
+        assertEquals(' ', buffer.getRow(2).getCell(0).getChar());
+        assertEquals('d', buffer.getRow(3).getCell(0).getChar());
+    }
 }
