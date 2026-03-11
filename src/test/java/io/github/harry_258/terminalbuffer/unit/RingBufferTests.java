@@ -42,15 +42,15 @@ public class RingBufferTests {
 
     @Test
     void testWrite() {
-        buffer.write('a', 0, 3);
+        buffer.write('a', 1, 3);
         buffer.write('b', 2, 4);
 
-        assertEquals('a', buffer.getRow(0).getCell(3).getChar());
+        assertEquals('a', buffer.getRow(1).getCell(3).getChar());
         assertEquals('b', buffer.getRow(2).getCell(4).getChar());
 
         // Overwrite 'a'
-        buffer.write('c', 4, 3);
-        assertEquals('c', buffer.getRow(0).getCell(3).getChar());
+        buffer.write('c', 1, 3);
+        assertEquals('c', buffer.getRow(1).getCell(3).getChar());
     }
 
     @Test
@@ -258,12 +258,12 @@ public class RingBufferTests {
 
     @Test
     void testRemoveCharacter() {
-        buffer.write('a', 0, 0);
-        buffer.write('b', 0, 1);
+        buffer.write('a', 1, 0);
+        buffer.write('b', 1, 1);
 
-        buffer.removeCharacter(0, 0);
+        buffer.removeCharacter(1, 0);
 
-        assertEquals('b', buffer.getRow(0).getCell(0).getChar());
+        assertEquals('b', buffer.getRow(1).getCell(0).getChar());
     }
 
     @Test
@@ -335,11 +335,11 @@ public class RingBufferTests {
 
     @Test
     void testGetLineAsString() {
-        buffer.write('a', 0, 3);
-        buffer.write('b', 0, 4);
-        buffer.write('c', 0, 1);
+        buffer.write('a', scrollbackSize, 3);
+        buffer.write('b', scrollbackSize, 4);
+        buffer.write('c', scrollbackSize, 1);
 
-        assertEquals(" c ab", buffer.getLineAsString(0));
+        assertEquals(" c ab", buffer.getLineAsString(scrollbackSize));
     }
 
     @Test
