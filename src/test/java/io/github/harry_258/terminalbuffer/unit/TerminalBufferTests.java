@@ -336,7 +336,7 @@ public class TerminalBufferTests {
         int insertedRow = 13;
         String insertedText = "a".repeat(stringLength);
 
-        buffer.insertTextOnLine(insertedRow, insertedText);
+        buffer.insertText(insertedRow, insertedText);
 
         Mockito.verify(mockRingBuffer, Mockito.times(Math.ceilDiv(stringLength, width))).insertLine(insertedRow + 1);
         assertEquals(insertedRow + 1, buffer.getCursorY());
@@ -346,7 +346,7 @@ public class TerminalBufferTests {
 
     @Test
     void testInsertEmptyTextOnLine() {
-        buffer.insertTextOnLine(10, "");
+        buffer.insertText(10, "");
 
         Mockito.verify(mockRingBuffer, Mockito.never()).insertLine(Mockito.anyInt());
         Mockito.verify(mockRingBuffer, Mockito.never()).write(Mockito.anyChar(), Mockito.anyInt(), Mockito.anyInt());

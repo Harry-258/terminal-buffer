@@ -110,7 +110,7 @@ public class TerminalBuffer {
      * @param row The row to insert the text at.
      * @param text The text to insert.
      */
-    public void insertTextOnLine(int row, String text) {
+    public void insertText(int row, String text) {
         if (text.isEmpty()) return;
 
         // Insert enough empty lines for the entire text to fit
@@ -125,6 +125,28 @@ public class TerminalBuffer {
         for (int i = 0; i < text.length(); i++) {
             write(text.charAt(i));
         }
+    }
+
+    /**
+     * Inserts the given text at the current cursor position.
+     * @param text The text to insert.
+     */
+    public void insertText(String text) {
+        String currentTextOnLine = getLineAsString(cursorY + ringBuffer.getScrollbackRowCount());
+
+        // Add left padding to reach the cursor's position in case the line is empty.
+        StringBuilder paddedText = new StringBuilder(currentTextOnLine);
+        while (paddedText.length() < cursorX) {
+            paddedText.append(" ");
+        }
+        currentTextOnLine = paddedText.toString();
+
+        String rightPart = currentTextOnLine.substring(cursorX);
+        String leftPart = currentTextOnLine.substring(0, cursorX);
+
+        String textToInsert = leftPart.concat(text).concat(rightPart);
+
+        insertText(cursorY, textToInsert);
     }
 
     /**
