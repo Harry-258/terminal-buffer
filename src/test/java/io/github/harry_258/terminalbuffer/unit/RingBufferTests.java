@@ -321,4 +321,15 @@ public class RingBufferTests {
         buffer.write('a', 1, 3);
         assertEquals('a', buffer.getCharacter(1, 3));
     }
+
+    @Test
+    void testGetCharacterAttributes() {
+        int row = 5;
+        int column = 10;
+
+        buffer.formatCell(row, column, attributes);
+        TextAttributes result = buffer.getCellAttributes(row, column);
+
+        assertEquals(attributes, result);
+    }
 }

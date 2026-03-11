@@ -232,4 +232,24 @@ public class TerminalBuffer {
     public char getCharacter() {
         return getCharacter(cursorY + ringBuffer.getScrollbackRowCount(), cursorX);
     }
+
+    /**
+     * Gets the attributes of the character at the specified row and column.
+     * @param row The row of the character to retrieve. This index takes the scrollback buffer into account.
+     * @param column The column of the character to retrieve.
+     * @return The attributes of the character at the specified row and column.
+     */
+    public TextAttributes getCellAttributes(int row, int column) {
+        column = Math.clamp(column, 0, ringBuffer.getRowSize() - 1);
+        row = Math.clamp(row, 0, ringBuffer.getRowCount() - 1);
+        return ringBuffer.getCellAttributes(row, column);
+    }
+
+    /**
+     * Gets the attributes of the character at the current cursor position.
+     * @return The attributes of the character at the current cursor position.
+     */
+    public TextAttributes getCellAttributes() {
+        return getCellAttributes(cursorY + ringBuffer.getScrollbackRowCount(), cursorX);
+    }
 }

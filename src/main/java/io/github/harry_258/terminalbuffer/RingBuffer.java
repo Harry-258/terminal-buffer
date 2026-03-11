@@ -245,4 +245,14 @@ public class RingBuffer {
     public char getCharacter(int row, int column) {
         return getRow(row).getCell(column).getChar();
     }
+
+    /**
+     * Gets the attributes of the character at the specified row and column.
+     * @param row The row of the character to retrieve. This index takes the scrollback buffer into account.
+     * @param column The column of the character to retrieve.
+     * @return The attributes of the character at the specified row and column.
+     */
+    public TextAttributes getCellAttributes(int row, int column) {
+        return getRow(row).getCell(column).getAttributes();
+    }
 }
