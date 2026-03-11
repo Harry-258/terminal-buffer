@@ -77,7 +77,7 @@ public class TerminalBuffer {
      * @param column The column to move to.
      */
     public void moveCursorTo(int row, int column) {
-        this.cursorX = Math.clamp(column, 0, ringBuffer.getRowSize() - 1);
+        this.cursorX = Math.clamp(column, 0, ringBuffer.getRowSize());
         this.cursorY = Math.clamp(row, 0, ringBuffer.getRowCount() - ringBuffer.getScrollbackRowCount() - 1);
     }
 
