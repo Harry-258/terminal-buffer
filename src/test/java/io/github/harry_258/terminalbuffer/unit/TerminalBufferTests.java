@@ -351,4 +351,17 @@ public class TerminalBufferTests {
         Mockito.verify(mockRingBuffer, Mockito.never()).insertLine(Mockito.anyInt());
         Mockito.verify(mockRingBuffer, Mockito.never()).write(Mockito.anyChar(), Mockito.anyInt(), Mockito.anyInt());
     }
+
+    @Test
+    void testWriteString() {
+        String text = "Hello, world!";
+        int initialCursorX = buffer.getCursorX();
+        int initialCursorY = buffer.getCursorY();
+
+        buffer.write(text);
+
+        for (int i = 0; i < text.length(); i++) {
+            Mockito.verify(mockRingBuffer, Mockito.times(1)).write(text.charAt(i), scrollbackSize + initialCursorY, initialCursorX + i);
+        }
+    }
 }

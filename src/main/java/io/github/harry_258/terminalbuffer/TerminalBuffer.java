@@ -35,6 +35,17 @@ public class TerminalBuffer {
     }
 
     /**
+     * Writes the provided string at the current cursor position and advances the cursor.
+     * Overwrites the text at the cursor position.
+     * @param text The string to write.
+     */
+    public void write(String text) {
+        for (int i = 0; i < text.length(); i++) {
+            write(text.charAt(i));
+        }
+    }
+
+    /**
      * Removes the character at the current cursor position.
      */
     public void removeCharacter() {
