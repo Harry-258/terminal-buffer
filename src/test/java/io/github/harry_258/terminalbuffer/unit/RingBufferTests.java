@@ -4,6 +4,8 @@ import io.github.harry_258.terminalbuffer.RingBuffer;
 import io.github.harry_258.terminalbuffer.TextAttributes;
 import org.junit.jupiter.api.Test;
 
+import java.util.List;
+
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class RingBufferTests {
@@ -158,5 +160,98 @@ public class RingBufferTests {
         assertEquals('a', buffer.getRow(newScreenHeight + scrollbackSize - 3).getCell(0).getChar());
         assertEquals('b', buffer.getRow(newScreenHeight + scrollbackSize - 2).getCell(1).getChar());
         assertEquals('c', buffer.getRow(newScreenHeight + scrollbackSize - 1).getCell(2).getChar());
+    }
+
+    @Test
+    void testChangeScreenWidthToSmallerWidth() {
+        int newScreenWidth = 1;
+
+        RingBuffer buffer = new RingBuffer(screenRowCount, rowSize, scrollbackSize);
+        buffer.fillRow(screenRowCount + scrollbackSize - 1, 'a');
+        buffer.fillRow(screenRowCount + scrollbackSize - 2, 'b');
+        buffer.fillRow(screenRowCount + scrollbackSize - 3, 'c');
+        buffer.fillRow(screenRowCount + scrollbackSize - 4, 'd');
+
+        buffer.changeScreenWidth(newScreenWidth);
+
+        assertEquals(newScreenWidth, buffer.getRowSize());
+
+        for (int i = 0; i < screenRowCount; i++) {
+            assertEquals(newScreenWidth, buffer.getRow(i).getSize());
+            assertEquals('a', buffer.getRow(i).getCell(0).getChar());
+        }
+    }
+
+    @Test
+    void testChangeScreenWidthToLargerWidth() {
+        int screenRowCount = 4;
+        int rowSize = 4;
+        int scrollbackSize = 0;
+        int newScreenWidth = 10;
+
+        RingBuffer buffer = new RingBuffer(screenRowCount, rowSize, scrollbackSize);
+        List<Character> characters = List.of('a', 'b', 'c', 'd');
+
+        for (int i = 0; i < screenRowCount; i++) {
+            buffer.fillRow(i, characters.get(i));
+        }
+
+        buffer.changeScreenWidth(newScreenWidth);
+
+        for (int i = 0; i < screenRowCount; i++) {
+            for (int j = 0; j < rowSize; j++) {
+                assertEquals(characters.get(i), buffer.getRow(i).getCell(j).getChar());
+            }
+            for (int j = rowSize; j < newScreenWidth; j++) {
+                assertEquals(' ', buffer.getRow(i).getCell(j).getChar());
+            }
+        }
+    }
+
+    @Test
+    void testChangeScreenWidthToSameWidth() {
+        RingBuffer buffer = new RingBuffer(screenRowCount, rowSize, scrollbackSize);
+        List<Character> characters = List.of('a', 'b', 'c', 'd');
+
+        for (int i = 0; i < screenRowCount; i++) {
+            buffer.fillRow(i, characters.get(i));
+        }
+
+        buffer.changeScreenWidth(rowSize);
+
+        for (int i = 0; i < screenRowCount; i++) {
+            assertEquals(rowSize, buffer.getRow(i).getSize());
+            for (int j = 0; j < rowSize; j++) {
+                assertEquals(characters.get(i), buffer.getRow(i).getCell(j).getChar());
+            }
+        }
+    }
+
+    @Test
+    void testChangeScreenWidthToSmallerWidthAndHeight() {
+        int screenRowCount = 4;
+        int rowSize = 4;
+        int scrollbackSize = 0;
+        int newScreenWidth = 2;
+        int newScreenHeight = 2;
+
+        RingBuffer buffer = new RingBuffer(screenRowCount, rowSize, scrollbackSize);
+
+        buffer.fillRow(0, 'a');
+        buffer.fillRow(1, 'b');
+        buffer.fillRow(2, 'c');
+        buffer.fillRow(3, 'd');
+
+        buffer.changeScreenWidth(newScreenWidth);
+        buffer.changeScreenHeight(newScreenHeight);
+
+        assertEquals(newScreenWidth, buffer.getRowSize());
+        assertEquals(newScreenHeight, buffer.getRowCount());
+
+        assertEquals('d', buffer.getRow(0).getCell(0).getChar());
+        assertEquals('d', buffer.getRow(0).getCell(1).getChar());
+
+        assertEquals('d', buffer.getRow(1).getCell(0).getChar());
+        assertEquals('d', buffer.getRow(1).getCell(1).getChar());
     }
 }

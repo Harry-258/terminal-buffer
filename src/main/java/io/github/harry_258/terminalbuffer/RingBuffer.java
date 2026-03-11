@@ -48,6 +48,15 @@ public class RingBuffer {
     }
 
     /**
+     * Fills the specified row with the specified character.
+     * @param row The row to fill.
+     * @param character The character to fill the row with.
+     */
+    public void fillRow(int row, char character) {
+        getRow(row).fillWithCharacter(character);
+    }
+
+    /**
      * Inserts an empty line by clearing the oldest line in the scrollback buffer and moving the index forward.
      */
     public void insertLineAtBottom() {
