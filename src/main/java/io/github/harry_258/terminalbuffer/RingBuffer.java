@@ -235,4 +235,14 @@ public class RingBuffer {
     public void removeCharacter(int row, int column) {
         getRow(row).removeCharacter(column);
     }
+
+    /**
+     * Gets the character at the specified row and column.
+     * @param row The row of the character to retrieve.
+     * @param column The column of the character to retrieve.
+     * @return The character at the specified row and column.
+     */
+    public char getCharacter(int row, int column) {
+        return getRow(row).getCell(column).getChar();
+    }
 }

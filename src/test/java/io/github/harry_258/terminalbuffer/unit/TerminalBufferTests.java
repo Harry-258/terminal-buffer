@@ -42,6 +42,7 @@ public class TerminalBufferTests {
         Mockito.doNothing().when(mockRingBuffer).formatCell(Mockito.anyInt(), Mockito.anyInt(), Mockito.any(TextAttributes.class));
         Mockito.doNothing().when(mockRingBuffer).formatRow(Mockito.anyInt(), Mockito.any(TextAttributes.class));
         Mockito.doNothing().when(mockRingBuffer).formatTerminal(Mockito.any(TextAttributes.class));
+        Mockito.when(mockRingBuffer.getCharacter(Mockito.anyInt(), Mockito.anyInt())).thenReturn('a');
 
         Field ringBufferField = TerminalBuffer.class.getDeclaredField("ringBuffer");
         ringBufferField.setAccessible(true);
@@ -220,5 +221,44 @@ public class TerminalBufferTests {
     void testFormatTerminal() {
         buffer.formatTerminal(attributes);
         Mockito.verify(mockRingBuffer, Mockito.times(1)).formatTerminal(attributes);
+    }
+
+    @Test
+    void testGetCharacterAtCursor() {
+        int row = 5;
+        int column = 10;
+
+        buffer.moveCursorTo(row, column);
+
+        buffer.getCharacter();
+        Mockito.verify(mockRingBuffer, Mockito.times(1)).getCharacter(scrollbackSize + row, column);
+    }
+
+    @Test
+    void testGetCharacterAtCursorOutOfBounds() {
+        int row = height + 100;
+        int column = height + 100;
+
+        buffer.moveCursorTo(row, column);
+
+        buffer.getCharacter();
+        Mockito.verify(mockRingBuffer, Mockito.times(1)).getCharacter(scrollbackSize + height - 1, width - 1);
+
+        row = -100;
+        column = -100;
+
+        buffer.moveCursorTo(row, column);
+
+        buffer.getCharacter();
+        Mockito.verify(mockRingBuffer, Mockito.times(1)).getCharacter(scrollbackSize, 0);
+    }
+
+    @Test
+    void testGetCharacter() {
+        int row = 5;
+        int column = 10;
+
+        buffer.getCharacter(row, column);
+        Mockito.verify(mockRingBuffer, Mockito.times(1)).getCharacter(row, column);
     }
 }

@@ -212,4 +212,24 @@ public class TerminalBuffer {
     public void changeScreenWidth(int width) {
         ringBuffer.changeScreenWidth(Math.max(1, width));
     }
+
+    /**
+     * Gets the character at the specified row and column.
+     * @param row The row of the character to retrieve. This index takes the scrollback buffer into account.
+     * @param column The column of the character to retrieve.
+     * @return The character at the specified row and column.
+     */
+    public char getCharacter(int row, int column) {
+        column = Math.clamp(column, 0, ringBuffer.getRowSize() - 1);
+        row = Math.clamp(row, 0, ringBuffer.getRowCount() - 1);
+        return ringBuffer.getCharacter(row, column);
+    }
+
+    /**
+     * Gets the character at the current cursor position.
+     * @return The character at the current cursor position.
+     */
+    public char getCharacter() {
+        return getCharacter(cursorY + ringBuffer.getScrollbackRowCount(), cursorX);
+    }
 }

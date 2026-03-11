@@ -315,4 +315,10 @@ public class RingBufferTests {
             }
         }
     }
+
+    @Test
+    void testGetCharacter() {
+        buffer.write('a', 1, 3);
+        assertEquals('a', buffer.getCharacter(1, 3));
+    }
 }
