@@ -4,11 +4,93 @@ public class TerminalBuffer {
     private final RingBuffer ringBuffer;
     private int cursorX;
     private int cursorY;
+    private TextAttributes defaultAttributes = TextAttributes.DEFAULT;
 
     public TerminalBuffer(int width, int height, int scrollbackSize) {
         this.ringBuffer = new RingBuffer(height, width, scrollbackSize);
         this.cursorX = 0;
         this.cursorY = 0;
+    }
+
+    /**
+     * Writes the provided character at the current cursor position and advances the cursor. If the cursor
+     * is at the end of the line, it wraps to the next line and overwrites the first character of the line.
+     * @param character The character to write.
+     */
+    public void write(char character) {
+        if (cursorX >= ringBuffer.getRowSize()) {
+            cursorX = 0;
+            cursorY++;
+        }
+
+        int screenHeight = ringBuffer.getRowCount() - ringBuffer.getScrollbackRowCount();
+        if (cursorY >= screenHeight) {
+            insertLineAtBottom();
+            cursorY = screenHeight - 1;
+        }
+
+        ringBuffer.write(character, cursorY + ringBuffer.getScrollbackRowCount(), cursorX);
+        ringBuffer.formatCell(cursorY + ringBuffer.getScrollbackRowCount(), cursorX, defaultAttributes);
+        cursorX++;
+    }
+
+    /**
+     * Removes the character at the current cursor position.
+     */
+    public void removeCharacter() {
+        ringBuffer.removeCharacter(cursorY + ringBuffer.getScrollbackRowCount(), cursorX);
+    }
+
+    /**
+     * Fills the row on the screen at the given index with the provided character.
+     * @param character The character to fill the row with.
+     * @param rowIndex The index of the row to fill. The index is relative to the top of the screen.
+     */
+    public void fillLineWithCharacter(char character, int rowIndex) {
+        ringBuffer.fillRow(rowIndex + ringBuffer.getScrollbackRowCount(), character);
+    }
+
+    /**
+     * Sets the default attributes for writing new characters to the screen.
+     * The characters that are already on the screen or in the buffer will not change any attributes.
+     * @param attributes The new attributes.
+     */
+    public void setDefaultAttributes(TextAttributes attributes) {
+        this.defaultAttributes = attributes;
+    }
+
+    /**
+     * Changes the style attributes of a cell.
+     * @param row The row of the cell.
+     * @param column The column of the cell.
+     * @param attributes The new attributes.
+     */
+    public void formatCell(int row, int column, TextAttributes attributes) {
+        ringBuffer.formatCell(row + ringBuffer.getScrollbackRowCount(), column, attributes);
+    }
+
+    /**
+     * Changes the style attributes of all cells in a row.
+     * @param row The row to change.
+     * @param attributes The new attributes.
+     */
+    public void formatRow(int row, TextAttributes attributes) {
+        ringBuffer.formatRow(row + ringBuffer.getScrollbackRowCount(), attributes);
+    }
+
+    /**
+     * Changes the style attributes of all cells on the screen and in the scrollback buffer
+     * @param attributes The new attributes.
+     */
+    public void formatTerminal(TextAttributes attributes) {
+        ringBuffer.formatTerminal(attributes);
+    }
+
+    /**
+     * Inserts an empty line at the bottom of the screen.
+     */
+    public void insertLineAtBottom() {
+        ringBuffer.insertLineAtBottom();
     }
 
     /**
@@ -40,7 +122,7 @@ public class TerminalBuffer {
      * @param columns The number of columns to move right.
      */
     public void moveCursorRight(int columns) {
-        this.cursorX = Math.min(ringBuffer.getRowSize() - 1, this.cursorX + columns);
+        this.cursorX = Math.min(ringBuffer.getRowSize(), this.cursorX + columns);
     }
 
     /**
@@ -49,7 +131,7 @@ public class TerminalBuffer {
      * @param column The column to move to.
      */
     public void moveCursorTo(int row, int column) {
-        this.cursorX = Math.clamp(column, 0, ringBuffer.getRowSize() - 1);
+        this.cursorX = Math.clamp(column, 0, ringBuffer.getRowSize());
         this.cursorY = Math.clamp(row, 0, ringBuffer.getRowCount() - ringBuffer.getScrollbackRowCount() - 1);
     }
 
@@ -80,7 +162,7 @@ public class TerminalBuffer {
      * Clears the terminal of all characters.
      */
     public void clearTerminal() {
-        ringBuffer.clear();
+        ringBuffer.clearTerminal();
     }
 
     /**
@@ -89,5 +171,45 @@ public class TerminalBuffer {
     public void clearTerminalAndFormatting() {
         clearAllFormatting();
         clearTerminal();
+    }
+
+    /**
+     * Clears all the characters on the screen. Does not clear the scrollback buffer.
+     */
+    public void clearScreen() {
+        ringBuffer.clearScreen();
+    }
+
+    /**
+     * Clears the formatting of all the characters on the screen. Does not influence the scrollback buffer.
+     */
+    public void clearScreenFormatting() {
+        ringBuffer.clearScreenFormatting();
+    }
+
+    /**
+     * Clears all the characters on the screen and resets their formatting to default. Does not influence the scrollback buffer.
+     */
+    public void clearScreenAndScreenFormatting() {
+        clearScreenFormatting();
+        clearScreen();
+    }
+
+    /**
+     * Changes the height of the screen. If the new height is smalled than 1,
+     * it sets the height to 1 line.
+     * @param height The new height of the screen.
+     */
+    public void changeScreenHeight(int height) {
+        ringBuffer.changeScreenHeight(Math.max(1, height));
+    }
+
+    /**
+     * Changes the width of the screen. If the new width is smaller than 1,
+     * it sets the width to 1 character.
+     * @param width The new width of the screen.
+     */
+    public void changeScreenWidth(int width) {
+        ringBuffer.changeScreenWidth(Math.max(1, width));
     }
 }
