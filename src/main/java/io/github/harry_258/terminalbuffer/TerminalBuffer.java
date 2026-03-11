@@ -118,4 +118,22 @@ public class TerminalBuffer {
         clearAllFormatting();
         clearTerminal();
     }
+
+    /**
+     * Changes the height of the screen. If the new height is smalled than 1,
+     * it sets the height to 1 line.
+     * @param height The new height of the screen.
+     */
+    public void changeScreenHeight(int height) {
+        ringBuffer.changeScreenHeight(Math.max(1, height));
+    }
+
+    /**
+     * Changes the width of the screen. If the new width is smaller than 1,
+     * it sets the width to 1 character.
+     * @param width The new width of the screen.
+     */
+    public void changeScreenWidth(int width) {
+        ringBuffer.changeScreenWidth(Math.max(1, width));
+    }
 }

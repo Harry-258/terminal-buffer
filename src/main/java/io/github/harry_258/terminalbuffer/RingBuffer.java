@@ -111,6 +111,30 @@ public class RingBuffer {
     }
 
     /**
+     * Changes the width of the screen. If the new width is smaller, it wraps the
+     * overflowing characters on each line to the next line. Otherwise, it appends
+     * empty cells to the end of each row.
+     * @param newWidth The new width of the screen.
+     */
+    public void changeScreenWidth(int newWidth) {
+        rowSize = newWidth;
+        List<Cell> reminderCells = new ArrayList<>();
+
+        for (int i = 0; i < rowCount; i++) {
+            reminderCells = getRow(i).changeSize(newWidth, reminderCells);
+        }
+
+        int count = 0;
+        for (Cell cell : reminderCells) {
+            if (count % newWidth == 0) {
+                insertLineAtBottom();
+            }
+            getRow(rowCount - 1).setCell(cell, count % newWidth);
+            count++;
+        }
+    }
+
+    /**
      * Clears all formatting from each row on the screen and scrollback.
      */
     public void clearFormatting() {
