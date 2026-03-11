@@ -226,4 +226,13 @@ public class RingBuffer {
             formatRow(i, attributes);
         }
     }
+
+    /**
+     * Removes the character at the specified row and column and shifts the rest of the characters to the left.
+     * @param row The row of the character to remove.
+     * @param column The column of the character to remove.
+     */
+    public void removeCharacter(int row, int column) {
+        getRow(row).removeCharacter(column);
+    }
 }

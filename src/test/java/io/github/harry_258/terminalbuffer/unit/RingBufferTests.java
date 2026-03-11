@@ -254,4 +254,15 @@ public class RingBufferTests {
         assertEquals('d', buffer.getRow(1).getCell(0).getChar());
         assertEquals('d', buffer.getRow(1).getCell(1).getChar());
     }
+
+    @Test
+    void testRemoveCharacter() {
+        RingBuffer buffer = new RingBuffer(screenRowCount, rowSize, scrollbackSize);
+        buffer.write('a', 0, 0);
+        buffer.write('b', 0, 1);
+
+        buffer.removeCharacter(0, 0);
+
+        assertEquals('b', buffer.getRow(0).getCell(0).getChar());
+    }
 }

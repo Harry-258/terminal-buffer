@@ -35,6 +35,13 @@ public class TerminalBuffer {
     }
 
     /**
+     * Removes the character at the current cursor position.
+     */
+    public void removeCharacter() {
+        ringBuffer.removeCharacter(cursorY + ringBuffer.getScrollbackRowCount(), cursorX);
+    }
+
+    /**
      * Fills the row on the screen at the given index with the provided character.
      * @param character The character to fill the row with.
      * @param rowIndex The index of the row to fill. The index is relative to the top of the screen.

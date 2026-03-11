@@ -61,7 +61,7 @@ public class Row {
      * @param index The index of the character to remove.
      */
     public void removeCharacter(int index) {
-        Cell removedCell = row.remove(index);
+        Cell removedCell = row.remove(Math.clamp(index, 0, row.size() - 1));
         removedCell.setCharacter(' ').clearFormatting();
         row.addLast(removedCell);
     }

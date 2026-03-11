@@ -31,6 +31,7 @@ public class TerminalBufferTests {
         Mockito.doNothing().when(mockRingBuffer).insertLineAtBottom();
         Mockito.doNothing().when(mockRingBuffer).changeScreenHeight(Mockito.anyInt());
         Mockito.doNothing().when(mockRingBuffer).changeScreenWidth(Mockito.anyInt());
+        Mockito.doNothing().when(mockRingBuffer).removeCharacter(Mockito.anyInt(), Mockito.anyInt());
 
         Field ringBufferField = TerminalBuffer.class.getDeclaredField("ringBuffer");
         ringBufferField.setAccessible(true);
@@ -158,5 +159,13 @@ public class TerminalBufferTests {
 
         buffer.changeScreenHeight(-10);
         Mockito.verify(mockRingBuffer, Mockito.times(2)).changeScreenHeight(1);
+    }
+
+    @Test
+    void testRemoveCharacter() {
+        buffer.moveCursorTo(height - 1, 0);
+        buffer.removeCharacter();
+
+        Mockito.verify(mockRingBuffer, Mockito.times(1)).removeCharacter(scrollbackSize + height - 1, 0);
     }
 }
