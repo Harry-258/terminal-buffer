@@ -2,6 +2,7 @@ package io.github.harry_258.terminalbuffer.unit;
 
 import io.github.harry_258.terminalbuffer.RingBuffer;
 import io.github.harry_258.terminalbuffer.TerminalBuffer;
+import io.github.harry_258.terminalbuffer.TextAttributes;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
@@ -26,7 +27,7 @@ public class TerminalBufferTests {
         Mockito.when(mockRingBuffer.getScrollbackRowCount()).thenReturn(scrollbackSize);
         Mockito.when(mockRingBuffer.getRowCount()).thenReturn(height + scrollbackSize);
         Mockito.doNothing().when(mockRingBuffer).clearFormatting();
-        Mockito.doNothing().when(mockRingBuffer).clear();
+        Mockito.doNothing().when(mockRingBuffer).clearTerminal();
         Mockito.doNothing().when(mockRingBuffer).insertLineAtBottom();
         Mockito.doNothing().when(mockRingBuffer).changeScreenHeight(Mockito.anyInt());
         Mockito.doNothing().when(mockRingBuffer).changeScreenWidth(Mockito.anyInt());
@@ -101,6 +102,7 @@ public class TerminalBufferTests {
 
         Mockito.verify(mockRingBuffer, Mockito.times(1)).write('a', scrollbackSize + 15, 10);
         Mockito.verify(mockRingBuffer, Mockito.never()).insertLineAtBottom();
+        Mockito.verify(mockRingBuffer, Mockito.times(1)).formatCell(scrollbackSize + 15, 10, TextAttributes.DEFAULT);
     }
 
     @Test
@@ -124,14 +126,14 @@ public class TerminalBufferTests {
     @Test
     void testClearAll() {
         buffer.clearTerminal();
-        Mockito.verify(mockRingBuffer, Mockito.times(1)).clear();
+        Mockito.verify(mockRingBuffer, Mockito.times(1)).clearTerminal();
     }
 
     @Test
     void testClearTerminalAndFormatting() {
         buffer.clearTerminalAndFormatting();
         Mockito.verify(mockRingBuffer, Mockito.times(1)).clearFormatting();
-        Mockito.verify(mockRingBuffer, Mockito.times(1)).clear();
+        Mockito.verify(mockRingBuffer, Mockito.times(1)).clearTerminal();
     }
 
     @Test

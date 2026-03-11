@@ -94,7 +94,7 @@ public class RingBufferTests {
         buffer.write('b', 1, 4);
         buffer.write('c', 2, 2);
 
-        buffer.clear();
+        buffer.clearTerminal();
 
         for (int i = 0; i < screenRowCount + scrollbackSize; i++) {
             for (int j = 0; j < rowSize; j++) {

@@ -174,9 +174,27 @@ public class RingBuffer {
     /**
      * Sets all characters on the screen and in the scrollback to spaces.
      */
-    public void clear() {
+    public void clearTerminal() {
         for (Row row : buffer) {
             row.clear();
+        }
+    }
+
+    /**
+     * Clears all the characters on the screen. Leaves the scrollback buffer intact.
+     */
+    public void clearScreen() {
+        for (int i = scrollbackRowCount; i < rowCount; i++) {
+            getRow(i).clear();
+        }
+    }
+
+    /**
+     * Clears the formatting of all the characters on the screen.
+     */
+    public void clearScreenFormatting() {
+        for (int i = scrollbackRowCount; i < rowCount; i++) {
+            getRow(i).clearFormatting();
         }
     }
 
@@ -187,6 +205,25 @@ public class RingBuffer {
      * @param attributes The attributes to apply to the cell.
      */
     public void formatCell(int row, int column, TextAttributes attributes) {
-        getRow(row).getCell(column).setAttributes(attributes);
+        getRow(row).formatCell(column, attributes);
+    }
+
+    /**
+     * Formats all characters on a row with the specified attributes.
+     * @param row The row to format.
+     * @param attributes The attributes to apply to the row.
+     */
+    public void formatRow(int row, TextAttributes attributes) {
+        getRow(row).formatCells(attributes);
+    }
+
+    /**
+     * Changes the style attributes of all characters on the screen and scrollback.
+     * @param attributes The new attributes.
+     */
+    public void formatTerminal(TextAttributes attributes) {
+        for (int i = 0; i < rowCount; i++) {
+            formatRow(i, attributes);
+        }
     }
 }

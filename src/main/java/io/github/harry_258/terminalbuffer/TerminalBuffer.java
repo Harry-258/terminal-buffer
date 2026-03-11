@@ -4,6 +4,7 @@ public class TerminalBuffer {
     private final RingBuffer ringBuffer;
     private int cursorX;
     private int cursorY;
+    private TextAttributes defaultAttributes = TextAttributes.DEFAULT;
 
     public TerminalBuffer(int width, int height, int scrollbackSize) {
         this.ringBuffer = new RingBuffer(height, width, scrollbackSize);
@@ -29,7 +30,53 @@ public class TerminalBuffer {
         }
 
         ringBuffer.write(character, cursorY + ringBuffer.getScrollbackRowCount(), cursorX);
+        ringBuffer.formatCell(cursorY + ringBuffer.getScrollbackRowCount(), cursorX, defaultAttributes);
         cursorX++;
+    }
+
+    /**
+     * Fills the row on the screen at the given index with the provided character.
+     * @param character The character to fill the row with.
+     * @param rowIndex The index of the row to fill. The index is relative to the top of the screen.
+     */
+    public void fillLineWithCharacter(char character, int rowIndex) {
+        ringBuffer.fillRow(rowIndex + ringBuffer.getScrollbackRowCount(), character);
+    }
+
+    /**
+     * Sets the default attributes for writing new characters to the screen.
+     * The characters that are already on the screen or in the buffer will not change any attributes.
+     * @param attributes The new attributes.
+     */
+    public void setDefaultAttributes(TextAttributes attributes) {
+        this.defaultAttributes = attributes;
+    }
+
+    /**
+     * Changes the style attributes of a cell.
+     * @param row The row of the cell.
+     * @param column The column of the cell.
+     * @param attributes The new attributes.
+     */
+    public void formatCell(int row, int column, TextAttributes attributes) {
+        ringBuffer.formatCell(row + ringBuffer.getScrollbackRowCount(), column, attributes);
+    }
+
+    /**
+     * Changes the style attributes of all cells in a row.
+     * @param row The row to change.
+     * @param attributes The new attributes.
+     */
+    public void formatRow(int row, TextAttributes attributes) {
+        ringBuffer.formatRow(row + ringBuffer.getScrollbackRowCount(), attributes);
+    }
+
+    /**
+     * Changes the style attributes of all cells on the screen and in the scrollback buffer
+     * @param attributes The new attributes.
+     */
+    public void formatTerminal(TextAttributes attributes) {
+        ringBuffer.formatTerminal(attributes);
     }
 
     /**
@@ -108,7 +155,7 @@ public class TerminalBuffer {
      * Clears the terminal of all characters.
      */
     public void clearTerminal() {
-        ringBuffer.clear();
+        ringBuffer.clearTerminal();
     }
 
     /**
@@ -117,6 +164,28 @@ public class TerminalBuffer {
     public void clearTerminalAndFormatting() {
         clearAllFormatting();
         clearTerminal();
+    }
+
+    /**
+     * Clears all the characters on the screen. Does not clear the scrollback buffer.
+     */
+    public void clearScreen() {
+        ringBuffer.clearScreen();
+    }
+
+    /**
+     * Clears the formatting of all the characters on the screen. Does not influence the scrollback buffer.
+     */
+    public void clearScreenFormatting() {
+        ringBuffer.clearScreenFormatting();
+    }
+
+    /**
+     * Clears all the characters on the screen and resets their formatting to default. Does not influence the scrollback buffer.
+     */
+    public void clearScreenAndScreenFormatting() {
+        clearScreenFormatting();
+        clearScreen();
     }
 
     /**

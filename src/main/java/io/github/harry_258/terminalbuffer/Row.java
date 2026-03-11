@@ -115,6 +115,25 @@ public class Row {
     }
 
     /**
+     * Formats all cells in the row.
+     * @param attributes The attributes to apply to the cells.
+     */
+    public void formatCells(TextAttributes attributes) {
+        for (Cell c : row) {
+            c.setAttributes(attributes);
+        }
+    }
+
+    /**
+     * Formats a single cell in the row. Clamps the index between 0 and the size of the row.
+     * @param index The index of the cell to format.
+     * @param attributes The attributes to apply to the cell.
+     */
+    public void formatCell(int index, TextAttributes attributes) {
+        row.get(Math.clamp(index, 0, row.size() - 1)).setAttributes(attributes);
+    }
+
+    /**
      * Clears the formatting of all the cells in the row.
      */
     public void clearFormatting() {
