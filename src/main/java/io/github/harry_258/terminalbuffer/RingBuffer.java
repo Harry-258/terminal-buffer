@@ -39,6 +39,15 @@ public class RingBuffer {
     }
 
     /**
+     * Writes a character at the specified index of the bottom-most row on the screen.
+     * @param character The character to write.
+     * @param index The index at which the character should be written.
+     */
+    public void write(char character, int index) {
+        getRow(rowCount - 1).writeCharacter(character, index);
+    }
+
+    /**
      * Inserts an empty line by clearing the oldest line in the scrollback buffer and moving the index forward.
      */
     public void insertLineAtBottom() {
@@ -87,12 +96,22 @@ public class RingBuffer {
     /**
      * Changes the height of the screen. If the new size is larger, it adds empty rows
      * at the top of the scrollback buffer. Otherwise, it removes the extra rows from the scrollback buffer.
-     * @param newRowCount The new height of the screen.
+     * @param newScreenHeight The new height of the screen.
      */
-    public void changeScreenHeight(int newRowCount) {
+    public void changeScreenHeight(int newScreenHeight) {
+        if (newScreenHeight <= 0) {
+            return;
+        }
+
+        int newTotalRowCount = newScreenHeight + scrollbackRowCount;
+        if (newTotalRowCount == rowCount) {
+            return;
+        }
+
         List<Row> newBuffer = new ArrayList<>();
-        int padding = newRowCount - rowCount;
-        int skippedRows = rowCount - newRowCount;
+
+        int padding = newTotalRowCount - rowCount;
+        int skippedRows = rowCount - newTotalRowCount;
 
         while (padding > 0) {
             newBuffer.add(new Row(rowSize));
@@ -106,7 +125,7 @@ public class RingBuffer {
         }
 
         index = 0;
-        rowCount = newRowCount;
+        rowCount = newTotalRowCount;
         buffer = newBuffer;
     }
 
@@ -150,5 +169,15 @@ public class RingBuffer {
         for (Row row : buffer) {
             row.clear();
         }
+    }
+
+    /**
+     * Formats a cell on the screen at the specified row and column.
+     * @param row The row of the cell to format.
+     * @param column The column of the cell to format.
+     * @param attributes The attributes to apply to the cell.
+     */
+    public void formatCell(int row, int column, TextAttributes attributes) {
+        getRow(row).getCell(column).setAttributes(attributes);
     }
 }
