@@ -42,6 +42,10 @@ public class TerminalBufferTests {
         Mockito.doNothing().when(mockRingBuffer).formatCell(Mockito.anyInt(), Mockito.anyInt(), Mockito.any(TextAttributes.class));
         Mockito.doNothing().when(mockRingBuffer).formatRow(Mockito.anyInt(), Mockito.any(TextAttributes.class));
         Mockito.doNothing().when(mockRingBuffer).formatTerminal(Mockito.any(TextAttributes.class));
+        Mockito.when(mockRingBuffer.getCharacter(Mockito.anyInt(), Mockito.anyInt())).thenReturn('a');
+        Mockito.when(mockRingBuffer.getCellAttributes(Mockito.anyInt(), Mockito.anyInt())).thenReturn(TextAttributes.DEFAULT);
+        Mockito.when(mockRingBuffer.getLineAsString(Mockito.anyInt())).thenReturn("JetBrains");
+        Mockito.doNothing().when(mockRingBuffer).insertLine(Mockito.anyInt());
 
         Field ringBufferField = TerminalBuffer.class.getDeclaredField("ringBuffer");
         ringBufferField.setAccessible(true);
@@ -220,5 +224,144 @@ public class TerminalBufferTests {
     void testFormatTerminal() {
         buffer.formatTerminal(attributes);
         Mockito.verify(mockRingBuffer, Mockito.times(1)).formatTerminal(attributes);
+    }
+
+    @Test
+    void testGetCharacterAtCursor() {
+        int row = 5;
+        int column = 10;
+
+        buffer.moveCursorTo(row, column);
+
+        buffer.getCharacter();
+        Mockito.verify(mockRingBuffer, Mockito.times(1)).getCharacter(scrollbackSize + row, column);
+    }
+
+    @Test
+    void testGetCharacterAtCursorOutOfBounds() {
+        int row = height + 100;
+        int column = height + 100;
+
+        buffer.moveCursorTo(row, column);
+
+        buffer.getCharacter();
+        Mockito.verify(mockRingBuffer, Mockito.times(1)).getCharacter(scrollbackSize + height - 1, width - 1);
+
+        row = -100;
+        column = -100;
+
+        buffer.moveCursorTo(row, column);
+
+        buffer.getCharacter();
+        Mockito.verify(mockRingBuffer, Mockito.times(1)).getCharacter(scrollbackSize, 0);
+    }
+
+    @Test
+    void testGetCharacter() {
+        int row = 5;
+        int column = 10;
+
+        buffer.getCharacter(row, column);
+        Mockito.verify(mockRingBuffer, Mockito.times(1)).getCharacter(row, column);
+    }
+
+    @Test
+    void testGetCellAttributes() {
+        int row = 5;
+        int column = 10;
+
+        buffer.getCellAttributes(row, column);
+        Mockito.verify(mockRingBuffer, Mockito.times(1)).getCellAttributes(row, column);
+    }
+
+    @Test
+    void testGetCellAttributesAtCursor() {
+        int row = height + 100;
+        int column = height + 100;
+
+        buffer.moveCursorTo(row, column);
+
+        buffer.getCellAttributes();
+        Mockito.verify(mockRingBuffer, Mockito.times(1)).getCellAttributes(scrollbackSize + height - 1, width - 1);
+
+        row = -100;
+        column = -100;
+
+        buffer.moveCursorTo(row, column);
+        buffer.getCellAttributes();
+
+        Mockito.verify(mockRingBuffer, Mockito.times(1)).getCellAttributes(scrollbackSize, 0);
+    }
+
+    @Test
+    void testGetLineAsString() {
+        int row = 100 + height;
+
+        buffer.getLineAsString(row);
+        Mockito.verify(mockRingBuffer, Mockito.times(1)).getLineAsString(scrollbackSize + height - 1);
+
+        row = -100;
+
+        buffer.getLineAsString(row);
+        Mockito.verify(mockRingBuffer, Mockito.times(1)).getLineAsString(0);
+    }
+
+    @Test
+    void testGetLineAsStringAtCursor() {
+        int row = 5;
+
+        buffer.moveCursorTo(row, 0);
+
+        buffer.getLineAsString();
+        Mockito.verify(mockRingBuffer, Mockito.times(1)).getLineAsString(scrollbackSize + row);
+    }
+
+    @Test
+    void testGetScreenAsString() {
+        Mockito.when(mockRingBuffer.getScreenAsString()).thenReturn("JetBrains");
+        buffer.getScreenAsString();
+        Mockito.verify(mockRingBuffer, Mockito.times(1)).getScreenAsString();
+    }
+
+    @Test
+    void testGetTerminalContent() {
+        Mockito.when(mockRingBuffer.getTerminalContent()).thenReturn("JetBrains");
+        buffer.getTerminalContentAsString();
+        Mockito.verify(mockRingBuffer, Mockito.times(1)).getTerminalContent();
+    }
+
+    @Test
+    void testInsertTextOnLine() {
+        int stringLength = 100;
+        int insertedRow = 13;
+        String insertedText = "a".repeat(stringLength);
+
+        buffer.insertText(insertedRow, insertedText);
+
+        Mockito.verify(mockRingBuffer, Mockito.times(Math.ceilDiv(stringLength, width))).insertLine(insertedRow + 1);
+        assertEquals(insertedRow + 1, buffer.getCursorY());
+        assertEquals(stringLength % width, buffer.getCursorX());
+        Mockito.verify(mockRingBuffer, Mockito.times(stringLength)).write(Mockito.eq('a'), Mockito.anyInt(), Mockito.anyInt());
+    }
+
+    @Test
+    void testInsertEmptyTextOnLine() {
+        buffer.insertText(10, "");
+
+        Mockito.verify(mockRingBuffer, Mockito.never()).insertLine(Mockito.anyInt());
+        Mockito.verify(mockRingBuffer, Mockito.never()).write(Mockito.anyChar(), Mockito.anyInt(), Mockito.anyInt());
+    }
+
+    @Test
+    void testWriteString() {
+        String text = "Hello, world!";
+        int initialCursorX = buffer.getCursorX();
+        int initialCursorY = buffer.getCursorY();
+
+        buffer.write(text);
+
+        for (int i = 0; i < text.length(); i++) {
+            Mockito.verify(mockRingBuffer, Mockito.times(1)).write(text.charAt(i), scrollbackSize + initialCursorY, initialCursorX + i);
+        }
     }
 }

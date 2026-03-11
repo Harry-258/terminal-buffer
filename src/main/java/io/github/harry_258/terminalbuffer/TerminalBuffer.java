@@ -35,6 +35,17 @@ public class TerminalBuffer {
     }
 
     /**
+     * Writes the provided string at the current cursor position and advances the cursor.
+     * Overwrites the text at the cursor position.
+     * @param text The string to write.
+     */
+    public void write(String text) {
+        for (int i = 0; i < text.length(); i++) {
+            write(text.charAt(i));
+        }
+    }
+
+    /**
      * Removes the character at the current cursor position.
      */
     public void removeCharacter() {
@@ -91,6 +102,51 @@ public class TerminalBuffer {
      */
     public void insertLineAtBottom() {
         ringBuffer.insertLineAtBottom();
+    }
+
+    /**
+     * Inserts the given text at the specified row on the screen. Wraps to the next
+     * line if it overflows. Does not overwrite any existing characters.
+     * @param row The row to insert the text at.
+     * @param text The text to insert.
+     */
+    public void insertText(int row, String text) {
+        if (text.isEmpty()) return;
+
+        // Insert enough empty lines for the entire text to fit
+        int insertedLines = Math.ceilDiv(text.length(), ringBuffer.getRowSize());
+        int bottomRow = row + insertedLines - 1;
+
+        for (int i = 0; i < insertedLines; i++) {
+            ringBuffer.insertLine(bottomRow);
+        }
+
+        moveCursorTo(row, 0);
+        for (int i = 0; i < text.length(); i++) {
+            write(text.charAt(i));
+        }
+    }
+
+    /**
+     * Inserts the given text at the current cursor position.
+     * @param text The text to insert.
+     */
+    public void insertText(String text) {
+        String currentTextOnLine = getLineAsString(cursorY + ringBuffer.getScrollbackRowCount());
+
+        // Add left padding to reach the cursor's position in case the line is empty.
+        StringBuilder paddedText = new StringBuilder(currentTextOnLine);
+        while (paddedText.length() < cursorX) {
+            paddedText.append(" ");
+        }
+        currentTextOnLine = paddedText.toString();
+
+        String rightPart = currentTextOnLine.substring(cursorX);
+        String leftPart = currentTextOnLine.substring(0, cursorX);
+
+        String textToInsert = leftPart.concat(text).concat(rightPart);
+
+        insertText(cursorY, textToInsert);
     }
 
     /**
@@ -211,5 +267,79 @@ public class TerminalBuffer {
      */
     public void changeScreenWidth(int width) {
         ringBuffer.changeScreenWidth(Math.max(1, width));
+    }
+
+    /**
+     * Gets the character at the specified row and column.
+     * @param row The row of the character to retrieve. This index takes the scrollback buffer into account.
+     * @param column The column of the character to retrieve.
+     * @return The character at the specified row and column.
+     */
+    public char getCharacter(int row, int column) {
+        column = Math.clamp(column, 0, ringBuffer.getRowSize() - 1);
+        row = Math.clamp(row, 0, ringBuffer.getRowCount() - 1);
+        return ringBuffer.getCharacter(row, column);
+    }
+
+    /**
+     * Gets the character at the current cursor position.
+     * @return The character at the current cursor position.
+     */
+    public char getCharacter() {
+        return getCharacter(cursorY + ringBuffer.getScrollbackRowCount(), cursorX);
+    }
+
+    /**
+     * Gets the attributes of the character at the specified row and column.
+     * @param row The row of the character to retrieve. This index takes the scrollback buffer into account.
+     * @param column The column of the character to retrieve.
+     * @return The attributes of the character at the specified row and column.
+     */
+    public TextAttributes getCellAttributes(int row, int column) {
+        column = Math.clamp(column, 0, ringBuffer.getRowSize() - 1);
+        row = Math.clamp(row, 0, ringBuffer.getRowCount() - 1);
+        return ringBuffer.getCellAttributes(row, column);
+    }
+
+    /**
+     * Gets the attributes of the character at the current cursor position.
+     * @return The attributes of the character at the current cursor position.
+     */
+    public TextAttributes getCellAttributes() {
+        return getCellAttributes(cursorY + ringBuffer.getScrollbackRowCount(), cursorX);
+    }
+
+    /**
+     * Gets the line at the specified index as a string.
+     * @param row The index of the line to retrieve. This index takes the scrollback buffer into account.
+     * @return The line at the specified index as a string.
+     */
+    public String getLineAsString(int row) {
+        row = Math.clamp(row, 0, ringBuffer.getRowCount() - 1);
+        return ringBuffer.getLineAsString(row);
+    }
+
+    /**
+     * Gets the line at the current cursor position as a string.
+     * @return The line at the current cursor position as a string.
+     */
+    public String getLineAsString() {
+        return getLineAsString(cursorY + ringBuffer.getScrollbackRowCount());
+    }
+
+    /**
+     * Gets the content on the screen as a string.
+     * @return A string containing the content on the screen.
+     */
+    public String getScreenAsString() {
+        return ringBuffer.getScreenAsString();
+    }
+
+    /**
+     * Gets the content from the scrollback buffer and screen combined in a single string.
+     * @return A string containing all the terminal content.
+     */
+    public String getTerminalContentAsString() {
+        return ringBuffer.getTerminalContent();
     }
 }

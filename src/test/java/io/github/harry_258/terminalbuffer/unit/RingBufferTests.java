@@ -42,15 +42,15 @@ public class RingBufferTests {
 
     @Test
     void testWrite() {
-        buffer.write('a', 0, 3);
+        buffer.write('a', 1, 3);
         buffer.write('b', 2, 4);
 
-        assertEquals('a', buffer.getRow(0).getCell(3).getChar());
+        assertEquals('a', buffer.getRow(1).getCell(3).getChar());
         assertEquals('b', buffer.getRow(2).getCell(4).getChar());
 
         // Overwrite 'a'
-        buffer.write('c', 4, 3);
-        assertEquals('c', buffer.getRow(0).getCell(3).getChar());
+        buffer.write('c', 1, 3);
+        assertEquals('c', buffer.getRow(1).getCell(3).getChar());
     }
 
     @Test
@@ -258,12 +258,12 @@ public class RingBufferTests {
 
     @Test
     void testRemoveCharacter() {
-        buffer.write('a', 0, 0);
-        buffer.write('b', 0, 1);
+        buffer.write('a', 1, 0);
+        buffer.write('b', 1, 1);
 
-        buffer.removeCharacter(0, 0);
+        buffer.removeCharacter(1, 0);
 
-        assertEquals('b', buffer.getRow(0).getCell(0).getChar());
+        assertEquals('b', buffer.getRow(1).getCell(0).getChar());
     }
 
     @Test
@@ -314,5 +314,81 @@ public class RingBufferTests {
                 assertEquals(attributes, buffer.getRow(i).getCell(j).getAttributes());
             }
         }
+    }
+
+    @Test
+    void testGetCharacter() {
+        buffer.write('a', 1, 3);
+        assertEquals('a', buffer.getCharacter(1, 3));
+    }
+
+    @Test
+    void testGetCharacterAttributes() {
+        int row = 5;
+        int column = 10;
+
+        buffer.formatCell(row, column, attributes);
+        TextAttributes result = buffer.getCellAttributes(row, column);
+
+        assertEquals(attributes, result);
+    }
+
+    @Test
+    void testGetLineAsString() {
+        buffer.write('a', scrollbackSize, 3);
+        buffer.write('b', scrollbackSize, 4);
+        buffer.write('c', scrollbackSize, 1);
+
+        assertEquals(" c ab", buffer.getLineAsString(scrollbackSize));
+    }
+
+    @Test
+    void testGetScreenAsString() {
+        String expected = " c" + System.lineSeparator() + "    b" + System.lineSeparator() + "   a";
+        int screenBottomIndex = screenRowCount + scrollbackSize - 1;
+
+        buffer.write('x', screenBottomIndex, 0);
+        buffer.insertLineAtBottom();
+        buffer.write('c', screenBottomIndex, 1);
+        buffer.insertLineAtBottom();
+        buffer.write('b', screenBottomIndex, 4);
+        buffer.insertLineAtBottom();
+        buffer.write('a', screenBottomIndex, 3);
+
+        assertEquals(expected, buffer.getScreenAsString());
+    }
+
+    @Test
+    void testGetTerminalContent() {
+        String expected = "x" + System.lineSeparator() + " c" + System.lineSeparator() + "    b" + System.lineSeparator() + "   a";
+        int screenBottomIndex = screenRowCount + scrollbackSize - 1;
+
+        buffer.write('x', screenBottomIndex, 0);
+        buffer.insertLineAtBottom();
+        buffer.write('c', screenBottomIndex, 1);
+        buffer.insertLineAtBottom();
+        buffer.write('b', screenBottomIndex, 4);
+        buffer.insertLineAtBottom();
+        buffer.write('a', screenBottomIndex, 3);
+
+        assertEquals(expected, buffer.getTerminalContent());
+    }
+
+    @Test
+    void testInsertLine() {
+        buffer.write('a', 0);
+        buffer.insertLineAtBottom();
+        buffer.write('b', 0);
+        buffer.insertLineAtBottom();
+        buffer.write('c', 0);
+        buffer.insertLineAtBottom();
+        buffer.write('d', 0);
+
+        buffer.insertLine(1);
+
+        assertEquals('b', buffer.getRow(0).getCell(0).getChar());
+        assertEquals('c', buffer.getRow(1).getCell(0).getChar());
+        assertEquals(' ', buffer.getRow(2).getCell(0).getChar());
+        assertEquals('d', buffer.getRow(3).getCell(0).getChar());
     }
 }

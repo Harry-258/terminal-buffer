@@ -2,6 +2,7 @@ package io.github.harry_258.terminalbuffer;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.StringJoiner;
 
 public class RingBuffer {
     private List<Row> buffer;
@@ -29,12 +30,16 @@ public class RingBuffer {
     }
 
     /**
-     * Writes a character to the specified row and column.
+     * Writes a character to the specified row and column on the screen. Clamps the row number
+     * between 0 and the number of lines on the screen, and the column number between 0 and the
+     * width of the terminal.
      * @param character The character to write.
      * @param row The row to write the character to.
      * @param column The column to write the character to.
      */
     public void write(char character, int row, int column) {
+        // The column is clamped in the writeCharacter method.
+        row = Math.clamp(row, scrollbackRowCount, rowCount - 1);
         getRow(row).writeCharacter(character, column);
     }
 
@@ -45,6 +50,31 @@ public class RingBuffer {
      */
     public void write(char character, int index) {
         getRow(rowCount - 1).writeCharacter(character, index);
+    }
+
+    /**
+     * Inserts an empty line at the specified row on the screen and removes the oldest line
+     * in the scrollback buffer. Does not overwrite any existing characters. Clamps the row index
+     * between 0 and the number of rows on the screen.
+     * @param row The row to insert the line at.
+     */
+    public void insertLine(int row) {
+        row = Math.clamp(row, 0, rowCount - scrollbackRowCount - 1);
+        int targetIndex = scrollbackRowCount + row;
+
+        Row deletedRow = getRow(0);
+        deletedRow.clear();
+        deletedRow.clearFormatting();
+
+        for (int i = 0; i < targetIndex; i++) {
+            int currentPhysical = (this.index + i) % rowCount;
+            int nextPhysical = (this.index + i + 1) % rowCount;
+
+            buffer.set(currentPhysical, buffer.get(nextPhysical));
+        }
+
+        int targetPhysical = (this.index + targetIndex) % rowCount;
+        buffer.set(targetPhysical, deletedRow);
     }
 
     /**
@@ -234,5 +264,58 @@ public class RingBuffer {
      */
     public void removeCharacter(int row, int column) {
         getRow(row).removeCharacter(column);
+    }
+
+    /**
+     * Gets the character at the specified row and column.
+     * @param row The row of the character to retrieve.
+     * @param column The column of the character to retrieve.
+     * @return The character at the specified row and column.
+     */
+    public char getCharacter(int row, int column) {
+        return getRow(row).getCell(column).getChar();
+    }
+
+    /**
+     * Gets the attributes of the character at the specified row and column.
+     * @param row The row of the character to retrieve. This index takes the scrollback buffer into account.
+     * @param column The column of the character to retrieve.
+     * @return The attributes of the character at the specified row and column.
+     */
+    public TextAttributes getCellAttributes(int row, int column) {
+        return getRow(row).getCell(column).getAttributes();
+    }
+
+    /**
+     * Gets the line at the specified index as a string.
+     * @param row The index of the line to retrieve.
+     * @return The line at the specified index as a string.
+     */
+    public String getLineAsString(int row) {
+        return getRow(row).toString();
+    }
+
+    /**
+     * Gets the content on the screen as a string.
+     * @return A string containing the content on the screen.
+     */
+    public String getScreenAsString() {
+        StringJoiner joiner = new StringJoiner(System.lineSeparator());
+        for (int i = scrollbackRowCount; i < rowCount; i++) {
+            joiner.add(getLineAsString(i));
+        }
+        return joiner.toString();
+    }
+
+    /**
+     * Gets the content from the scrollback buffer and screen combined in a single string.
+     * @return A string containing all the terminal content.
+     */
+    public String getTerminalContent() {
+        StringJoiner joiner = new StringJoiner(System.lineSeparator());
+        for (int i = 0; i < rowCount; i++) {
+            joiner.add(getLineAsString(i));
+        }
+        return joiner.toString();
     }
 }

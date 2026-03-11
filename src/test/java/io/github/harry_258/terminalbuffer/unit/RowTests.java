@@ -235,4 +235,15 @@ public class RowTests {
         assertEquals('a', row.getCell(0).getChar());
         assertEquals('b', row.getCell(size - 1).getChar());
     }
+
+    @Test
+    void testToString() {
+        Row row = new Row(10);
+        row.writeCharacter('a', 1);
+        row.writeCharacter('b', 2);
+        row.writeCharacter('d', 4);
+        row.writeCharacter('e', 5);
+
+        assertEquals(" ab de", row.toString());
+    }
 }
