@@ -252,4 +252,30 @@ public class TerminalBuffer {
     public TextAttributes getCellAttributes() {
         return getCellAttributes(cursorY + ringBuffer.getScrollbackRowCount(), cursorX);
     }
+
+    /**
+     * Gets the line at the specified index as a string.
+     * @param row The index of the line to retrieve. This index takes the scrollback buffer into account.
+     * @return The line at the specified index as a string.
+     */
+    public String getLineAsString(int row) {
+        row = Math.clamp(row, 0, ringBuffer.getRowCount() - 1);
+        return ringBuffer.getLineAsString(row);
+    }
+
+    /**
+     * Gets the line at the current cursor position as a string.
+     * @return The line at the current cursor position as a string.
+     */
+    public String getLineAsString() {
+        return getLineAsString(cursorY + ringBuffer.getScrollbackRowCount());
+    }
+
+    /**
+     * Gets the content on the screen as a string.
+     * @return A string containing the content on the screen.
+     */
+    public String getScreenAsString() {
+        return ringBuffer.getScreenAsString();
+    }
 }

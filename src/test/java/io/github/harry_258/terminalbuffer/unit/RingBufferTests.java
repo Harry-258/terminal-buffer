@@ -332,4 +332,24 @@ public class RingBufferTests {
 
         assertEquals(attributes, result);
     }
+
+    @Test
+    void testGetLineAsString() {
+        buffer.write('a', 0, 3);
+        buffer.write('b', 0, 4);
+        buffer.write('c', 0, 1);
+
+        assertEquals(" c ab", buffer.getLineAsString(0));
+    }
+
+    @Test
+    void testGetScreenAsString() {
+        String expected = " c\n    b\n   a";
+
+        buffer.write('a', screenRowCount + scrollbackSize - 1, 3);
+        buffer.write('b', screenRowCount + scrollbackSize - 2, 4);
+        buffer.write('c', screenRowCount + scrollbackSize - 3, 1);
+
+        assertEquals(expected, buffer.getScreenAsString());
+    }
 }

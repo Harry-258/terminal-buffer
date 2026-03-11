@@ -149,4 +149,16 @@ public class Row {
     public int getSize() {
         return size;
     }
+
+    /**
+     * Adds the cells in the row to a string. The string is stripped of trailing spaces.
+     * @return A string version of the row.
+     */
+    public String toString() {
+        StringBuilder stringBuilder = new StringBuilder();
+        for (Cell c : row) {
+            stringBuilder.append(c.getChar());
+        }
+        return stringBuilder.toString().stripTrailing();
+    }
 }

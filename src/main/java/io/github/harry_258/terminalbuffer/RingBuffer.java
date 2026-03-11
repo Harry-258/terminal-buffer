@@ -2,6 +2,7 @@ package io.github.harry_258.terminalbuffer;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.StringJoiner;
 
 public class RingBuffer {
     private List<Row> buffer;
@@ -254,5 +255,26 @@ public class RingBuffer {
      */
     public TextAttributes getCellAttributes(int row, int column) {
         return getRow(row).getCell(column).getAttributes();
+    }
+
+    /**
+     * Gets the line at the specified index as a string.
+     * @param row The index of the line to retrieve.
+     * @return The line at the specified index as a string.
+     */
+    public String getLineAsString(int row) {
+        return getRow(row).toString();
+    }
+
+    /**
+     * Gets the content on the screen as a string.
+     * @return A string containing the content on the screen.
+     */
+    public String getScreenAsString() {
+        StringJoiner joiner = new StringJoiner("\n");
+        for (int i = scrollbackRowCount; i < rowCount; i++) {
+            joiner.add(getLineAsString(i));
+        }
+        return joiner.toString();
     }
 }
