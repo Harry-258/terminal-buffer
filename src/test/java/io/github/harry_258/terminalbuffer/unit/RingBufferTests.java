@@ -344,12 +344,33 @@ public class RingBufferTests {
 
     @Test
     void testGetScreenAsString() {
-        String expected = " c\n    b\n   a";
+        String expected = " c" + System.lineSeparator() + "    b" + System.lineSeparator() + "   a";
+        int screenBottomIndex = screenRowCount + scrollbackSize - 1;
 
-        buffer.write('a', screenRowCount + scrollbackSize - 1, 3);
-        buffer.write('b', screenRowCount + scrollbackSize - 2, 4);
-        buffer.write('c', screenRowCount + scrollbackSize - 3, 1);
+        buffer.write('x', screenBottomIndex, 0);
+        buffer.insertLineAtBottom();
+        buffer.write('c', screenBottomIndex, 1);
+        buffer.insertLineAtBottom();
+        buffer.write('b', screenBottomIndex, 4);
+        buffer.insertLineAtBottom();
+        buffer.write('a', screenBottomIndex, 3);
 
         assertEquals(expected, buffer.getScreenAsString());
+    }
+
+    @Test
+    void testGetTerminalContent() {
+        String expected = "x" + System.lineSeparator() + " c" + System.lineSeparator() + "    b" + System.lineSeparator() + "   a";
+        int screenBottomIndex = screenRowCount + scrollbackSize - 1;
+
+        buffer.write('x', screenBottomIndex, 0);
+        buffer.insertLineAtBottom();
+        buffer.write('c', screenBottomIndex, 1);
+        buffer.insertLineAtBottom();
+        buffer.write('b', screenBottomIndex, 4);
+        buffer.insertLineAtBottom();
+        buffer.write('a', screenBottomIndex, 3);
+
+        assertEquals(expected, buffer.getTerminalContent());
     }
 }

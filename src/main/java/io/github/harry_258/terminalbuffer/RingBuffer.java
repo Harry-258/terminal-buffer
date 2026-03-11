@@ -271,8 +271,20 @@ public class RingBuffer {
      * @return A string containing the content on the screen.
      */
     public String getScreenAsString() {
-        StringJoiner joiner = new StringJoiner("\n");
+        StringJoiner joiner = new StringJoiner(System.lineSeparator());
         for (int i = scrollbackRowCount; i < rowCount; i++) {
+            joiner.add(getLineAsString(i));
+        }
+        return joiner.toString();
+    }
+
+    /**
+     * Gets the content from the scrollback buffer and screen combined in a single string.
+     * @return A string containing all the terminal content.
+     */
+    public String getTerminalContent() {
+        StringJoiner joiner = new StringJoiner(System.lineSeparator());
+        for (int i = 0; i < rowCount; i++) {
             joiner.add(getLineAsString(i));
         }
         return joiner.toString();

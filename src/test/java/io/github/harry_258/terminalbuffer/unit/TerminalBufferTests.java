@@ -5,6 +5,7 @@ import io.github.harry_258.terminalbuffer.TerminalBuffer;
 import io.github.harry_258.terminalbuffer.TextAttributes;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.Mock;
 import org.mockito.Mockito;
 
 import java.lang.reflect.Field;
@@ -320,5 +321,12 @@ public class TerminalBufferTests {
         Mockito.when(mockRingBuffer.getScreenAsString()).thenReturn("JetBrains");
         buffer.getScreenAsString();
         Mockito.verify(mockRingBuffer, Mockito.times(1)).getScreenAsString();
+    }
+
+    @Test
+    void testGetTerminalContent() {
+        Mockito.when(mockRingBuffer.getTerminalContent()).thenReturn("JetBrains");
+        buffer.getTerminalContentAsString();
+        Mockito.verify(mockRingBuffer, Mockito.times(1)).getTerminalContent();
     }
 }

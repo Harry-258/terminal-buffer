@@ -278,4 +278,12 @@ public class TerminalBuffer {
     public String getScreenAsString() {
         return ringBuffer.getScreenAsString();
     }
+
+    /**
+     * Gets the content from the scrollback buffer and screen combined in a single string.
+     * @return A string containing all the terminal content.
+     */
+    public String getTerminalContentAsString() {
+        return ringBuffer.getTerminalContent();
+    }
 }
