@@ -122,4 +122,12 @@ public class Row {
             c.clearFormatting();
         }
     }
+
+    /**
+     * Gets the size of the row.
+     * @return The size of the row.
+     */
+    public int getSize() {
+        return size;
+    }
 }

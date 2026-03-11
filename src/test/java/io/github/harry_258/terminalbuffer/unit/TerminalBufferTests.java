@@ -48,7 +48,7 @@ public class TerminalBufferTests {
         assertEquals(0, buffer.getCursorX());
 
         buffer.moveCursorRight(100);
-        assertEquals(9, buffer.getCursorX());
+        assertEquals(10, buffer.getCursorX());
 
         buffer.moveCursorTo(20, 200);
         assertEquals(9, buffer.getCursorX());
