@@ -36,7 +36,8 @@ public class TerminalBuffer {
 
     /**
      * Writes the provided string at the current cursor position and advances the cursor.
-     * Overwrites the text at the cursor position.
+     * Overwrites the text at the cursor position. If the text is larger than the row,
+     * it overflows to the next line and overwrites the characters on that row.
      * @param text The string to write.
      */
     public void write(String text) {
@@ -46,7 +47,7 @@ public class TerminalBuffer {
     }
 
     /**
-     * Removes the character at the current cursor position.
+     * Removes the character at the current cursor position and shifts the rest of the characters on the row to the left.
      */
     public void removeCharacter() {
         ringBuffer.removeCharacter(cursorY + ringBuffer.getScrollbackRowCount(), cursorX);
@@ -106,7 +107,8 @@ public class TerminalBuffer {
 
     /**
      * Inserts the given text at the specified row on the screen. Wraps to the next
-     * line if it overflows. Does not overwrite any existing characters.
+     * line if it overflows. Does not overwrite any existing characters, only pushes them to
+     * a new line and/or the right.
      * @param row The row to insert the text at.
      * @param text The text to insert.
      */
@@ -252,7 +254,7 @@ public class TerminalBuffer {
     }
 
     /**
-     * Changes the height of the screen. If the new height is smalled than 1,
+     * Changes the height of the screen. If the new height is smaller than 1,
      * it sets the height to 1 line.
      * @param height The new height of the screen.
      */
