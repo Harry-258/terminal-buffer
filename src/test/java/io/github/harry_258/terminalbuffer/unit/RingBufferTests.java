@@ -2,6 +2,7 @@ package io.github.harry_258.terminalbuffer.unit;
 
 import io.github.harry_258.terminalbuffer.RingBuffer;
 import io.github.harry_258.terminalbuffer.TextAttributes;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;
@@ -9,13 +10,22 @@ import java.util.List;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class RingBufferTests {
-    int screenRowCount = 3;
-    int rowSize = 5;
-    int scrollbackSize = 1;
+    private final int screenRowCount = 3;
+    private final int rowSize = 5;
+    private final int scrollbackSize = 1;
+    private final TextAttributes attributes = new TextAttributes(
+            TextAttributes.Color.BLUE, TextAttributes.Color.RED, true, true,
+            true, true, true, true, true, true
+    );
+    private RingBuffer buffer;
+
+    @BeforeEach
+    void setup() {
+        buffer = new RingBuffer(screenRowCount, rowSize, scrollbackSize);
+    }
 
     @Test
     void testInsertLineAtBottom() {
-        RingBuffer buffer = new RingBuffer(screenRowCount, rowSize, scrollbackSize);
         buffer.write('a', 0);
         buffer.insertLineAtBottom();
         buffer.write('b', 0);
@@ -32,8 +42,6 @@ public class RingBufferTests {
 
     @Test
     void testWrite() {
-        RingBuffer buffer = new RingBuffer(screenRowCount, rowSize, scrollbackSize);
-
         buffer.write('a', 0, 3);
         buffer.write('b', 2, 4);
 
@@ -47,8 +55,6 @@ public class RingBufferTests {
 
     @Test
     void testWriteAtBottom() {
-        RingBuffer buffer = new RingBuffer(screenRowCount, rowSize, scrollbackSize);
-
         buffer.write('a', 0);
 
         assertEquals('a', buffer.getRow(screenRowCount + scrollbackSize - 1).getCell(0).getChar());
@@ -63,7 +69,6 @@ public class RingBufferTests {
                 TextAttributes.Color.BLUE, TextAttributes.Color.RED, true, true,
                 true, true, true, true, true, true
         );
-        RingBuffer buffer = new RingBuffer(screenRowCount, rowSize, scrollbackSize);
         buffer.formatCell(0, 0, textAttributes);
         buffer.formatCell(3, 4, textAttributes);
 
@@ -77,7 +82,6 @@ public class RingBufferTests {
                 TextAttributes.Color.BLUE, TextAttributes.Color.RED, true, true,
                 true, true, true, true, true, true
         );
-        RingBuffer buffer = new RingBuffer(screenRowCount, rowSize, scrollbackSize);
         buffer.formatCell(0, 0, textAttributes);
         buffer.formatCell(3, 4, textAttributes);
 
@@ -89,7 +93,6 @@ public class RingBufferTests {
 
     @Test
     void testClear() {
-        RingBuffer buffer = new RingBuffer(screenRowCount, rowSize, scrollbackSize);
         buffer.write('a', 0, 3);
         buffer.write('b', 1, 4);
         buffer.write('c', 2, 2);
@@ -166,7 +169,6 @@ public class RingBufferTests {
     void testChangeScreenWidthToSmallerWidth() {
         int newScreenWidth = 1;
 
-        RingBuffer buffer = new RingBuffer(screenRowCount, rowSize, scrollbackSize);
         buffer.fillRow(screenRowCount + scrollbackSize - 1, 'a');
         buffer.fillRow(screenRowCount + scrollbackSize - 2, 'b');
         buffer.fillRow(screenRowCount + scrollbackSize - 3, 'c');
@@ -210,7 +212,6 @@ public class RingBufferTests {
 
     @Test
     void testChangeScreenWidthToSameWidth() {
-        RingBuffer buffer = new RingBuffer(screenRowCount, rowSize, scrollbackSize);
         List<Character> characters = List.of('a', 'b', 'c', 'd');
 
         for (int i = 0; i < screenRowCount; i++) {
@@ -257,12 +258,61 @@ public class RingBufferTests {
 
     @Test
     void testRemoveCharacter() {
-        RingBuffer buffer = new RingBuffer(screenRowCount, rowSize, scrollbackSize);
         buffer.write('a', 0, 0);
         buffer.write('b', 0, 1);
 
         buffer.removeCharacter(0, 0);
 
         assertEquals('b', buffer.getRow(0).getCell(0).getChar());
+    }
+
+    @Test
+    void testClearScreen() {
+        for (int i = 0; i < screenRowCount + scrollbackSize; i++) {
+            buffer.fillRow(i, 'a');
+        }
+
+        buffer.clearScreen();
+
+        for (int i = scrollbackSize; i < screenRowCount + scrollbackSize; i++) {
+            for (int j = 0; j < rowSize; j++) {
+                assertEquals(' ', buffer.getRow(i).getCell(j).getChar());
+            }
+        }
+    }
+
+    @Test
+    void testClearScreenFormatting() {
+        for (int i = 0; i < screenRowCount + scrollbackSize; i++) {
+            buffer.formatRow(i, attributes);
+        }
+
+        buffer.clearScreenFormatting();
+
+        for (int i = scrollbackSize; i < screenRowCount + scrollbackSize; i++) {
+            for (int j = 0; j < rowSize; j++) {
+                assertEquals(TextAttributes.DEFAULT, buffer.getRow(i).getCell(j).getAttributes());
+            }
+        }
+    }
+
+    @Test
+    void testFormatRow() {
+        buffer.formatRow(0, attributes);
+
+        for (int i = 0; i < rowSize; i++) {
+            assertEquals(attributes, buffer.getRow(0).getCell(i).getAttributes());
+        }
+    }
+
+    @Test
+    void testFormatTerminal() {
+        buffer.formatTerminal(attributes);
+
+        for (int i = 0; i < screenRowCount + scrollbackSize; i++) {
+            for (int j = 0; j < rowSize; j++) {
+                assertEquals(attributes, buffer.getRow(i).getCell(j).getAttributes());
+            }
+        }
     }
 }

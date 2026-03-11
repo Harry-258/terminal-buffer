@@ -7,7 +7,7 @@ public class RingBuffer {
     private List<Row> buffer;
     private int rowCount;
     private int rowSize;
-    private int scrollbackRowCount;
+    private final int scrollbackRowCount;
     private int index;
 
     /**

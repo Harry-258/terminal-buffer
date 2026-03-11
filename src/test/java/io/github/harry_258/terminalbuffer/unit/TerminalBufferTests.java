@@ -14,9 +14,13 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 public class TerminalBufferTests {
     private TerminalBuffer buffer;
     private RingBuffer mockRingBuffer;
-    private int width = 80;
-    private int height = 24;
-    private int scrollbackSize = 100;
+    private final int width = 80;
+    private final int height = 24;
+    private final int scrollbackSize = 100;
+    private final TextAttributes attributes = new TextAttributes(
+            TextAttributes.Color.BLUE, TextAttributes.Color.RED, true, true,
+            true, true, true, true, true, true
+    );
 
     @BeforeEach
     void setup() throws NoSuchFieldException, IllegalAccessException {
@@ -32,6 +36,12 @@ public class TerminalBufferTests {
         Mockito.doNothing().when(mockRingBuffer).changeScreenHeight(Mockito.anyInt());
         Mockito.doNothing().when(mockRingBuffer).changeScreenWidth(Mockito.anyInt());
         Mockito.doNothing().when(mockRingBuffer).removeCharacter(Mockito.anyInt(), Mockito.anyInt());
+        Mockito.doNothing().when(mockRingBuffer).clearScreen();
+        Mockito.doNothing().when(mockRingBuffer).clearScreenFormatting();
+        Mockito.doNothing().when(mockRingBuffer).fillRow(Mockito.anyInt(), Mockito.anyChar());
+        Mockito.doNothing().when(mockRingBuffer).formatCell(Mockito.anyInt(), Mockito.anyInt(), Mockito.any(TextAttributes.class));
+        Mockito.doNothing().when(mockRingBuffer).formatRow(Mockito.anyInt(), Mockito.any(TextAttributes.class));
+        Mockito.doNothing().when(mockRingBuffer).formatTerminal(Mockito.any(TextAttributes.class));
 
         Field ringBufferField = TerminalBuffer.class.getDeclaredField("ringBuffer");
         ringBufferField.setAccessible(true);
@@ -167,5 +177,48 @@ public class TerminalBufferTests {
         buffer.removeCharacter();
 
         Mockito.verify(mockRingBuffer, Mockito.times(1)).removeCharacter(scrollbackSize + height - 1, 0);
+    }
+
+    @Test
+    void testClearScreen() {
+        buffer.clearScreen();
+        Mockito.verify(mockRingBuffer, Mockito.times(1)).clearScreen();
+    }
+
+    @Test
+    void testClearScreenFormatting() {
+        buffer.clearScreenFormatting();
+        Mockito.verify(mockRingBuffer, Mockito.times(1)).clearScreenFormatting();
+    }
+
+    @Test
+    void testClearScreenAndScreenFormatting() {
+        buffer.clearScreenAndScreenFormatting();
+        Mockito.verify(mockRingBuffer, Mockito.times(1)).clearScreenFormatting();
+        Mockito.verify(mockRingBuffer, Mockito.times(1)).clearScreen();
+    }
+
+    @Test
+    void testFillLineWithCharacter() {
+        buffer.fillLineWithCharacter('a', 2);
+        Mockito.verify(mockRingBuffer, Mockito.times(1)).fillRow(scrollbackSize + 2, 'a');
+    }
+
+    @Test
+    void testFormatCell() {
+        buffer.formatCell(1, 2, attributes);
+        Mockito.verify(mockRingBuffer, Mockito.times(1)).formatCell(scrollbackSize + 1, 2, attributes);
+    }
+
+    @Test
+    void testFormatRow() {
+        buffer.formatRow(3, attributes);
+        Mockito.verify(mockRingBuffer, Mockito.times(1)).formatRow(scrollbackSize + 3, attributes);
+    }
+
+    @Test
+    void testFormatTerminal() {
+        buffer.formatTerminal(attributes);
+        Mockito.verify(mockRingBuffer, Mockito.times(1)).formatTerminal(attributes);
     }
 }
