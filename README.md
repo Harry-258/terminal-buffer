@@ -32,7 +32,7 @@ cd terminal-buffer
 The project contains unit tests, including property-based tests for edge cases, and integration tests. To run the tests, run the following command:
 
 ```bash
-mvn test
+mvn clean verify
 ```
 
 ## Future Improvements
